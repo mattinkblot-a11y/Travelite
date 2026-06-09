@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; img-src * data:; connect-src *">
+<title>Travelite — Itinerary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="travelite.css"/>
+<style>
+/* ══ ITINERARY PAGE — CRITICAL LAYOUT ══════════════════════════════════════ */
+html,body{height:100%!important;margin:0!important;padding:0!important;}
+body{display:flex!important;flex-direction:column!important;height:100vh!important;
+  overflow:hidden!important;background:radial-gradient(ellipse 140% 120% at 50% 40%,#071e36 0%,#04111f 45%,#020c16 100%)!important;
+  font-family:'DM Sans',system-ui,sans-serif!important;color:#f5efe6!important;}
+#g-topbar{display:flex!important;align-items:center!important;height:52px!important;
+  min-height:52px!important;max-height:52px!important;flex-shrink:0!important;
+  background:linear-gradient(90deg,rgba(4,17,31,.99),rgba(5,20,36,.98))!important;
+  border-bottom:1px solid rgba(201,169,110,.12)!important;padding:0 18px!important;gap:6px!important;z-index:100!important;}
+#page-body{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;
+  min-height:0!important;overflow:hidden!important;}
+
+/* ══ SETUP POPUP ════════════════════════════════════════════════════════════ */
+#setup-overlay{position:fixed;inset:0;background:rgba(2,12,22,.85);backdrop-filter:blur(18px);
+  z-index:500;display:flex;align-items:center;justify-content:center;}
+#setup-overlay.hidden{display:none;}
+#setup-card{background:linear-gradient(135deg,rgba(4,17,31,.99),rgba(6,22,42,.99));
+  border:1px solid rgba(201,169,110,.22);border-radius:16px;padding:32px 36px 28px;
+  width:520px;max-width:calc(100vw - 32px);position:relative;
+  box-shadow:0 40px 100px rgba(0,0,0,.85),inset 0 1px 0 rgba(201,169,110,.12);
+  animation:popIn .28s cubic-bezier(.4,0,.2,1);}
+#setup-card::before{content:'';position:absolute;top:0;left:12%;right:12%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,169,110,.5),transparent);}
+.sc-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:300;
+  color:var(--gold-light);letter-spacing:.04em;margin-bottom:4px;}
+.sc-sub{font-size:11px;color:rgba(245,239,230,.3);letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:24px;}
+.sc-dest{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;color:var(--ivory);
+  padding:10px 14px;background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.18);
+  border-radius:8px;margin-bottom:20px;letter-spacing:.03em;}
+.sc-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.sc-row.single{grid-template-columns:1fr;margin-bottom:14px;}
+.sc-field label{font-size:9.5px;font-weight:600;color:rgba(245,239,230,.32);letter-spacing:.12em;
+  text-transform:uppercase;display:block;margin-bottom:6px;}
+.sc-field input,.sc-field select{width:100%;background:rgba(245,239,230,.04);
+  border:1px solid rgba(245,239,230,.12);border-radius:6px;padding:8px 12px;
+  font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ivory);outline:none;
+  transition:border-color .18s;box-sizing:border-box;}
+.sc-field input:focus,.sc-field select:focus{border-color:rgba(201,169,110,.4);}
+.sc-field select option{background:#071828;}
+.sc-field input::placeholder{color:rgba(245,239,230,.2);}
+.sc-import{background:rgba(245,239,230,.03);border:1px solid rgba(245,239,230,.1);
+  border-radius:8px;padding:12px 14px;margin-bottom:20px;}
+.sc-import-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.sc-import-hdr span{font-size:9.5px;font-weight:600;color:rgba(245,239,230,.32);
+  letter-spacing:.12em;text-transform:uppercase;}
+.sc-import-hdr em{font-size:9px;color:rgba(201,169,110,.45);font-style:normal;margin-left:auto;}
+.sc-sample{display:flex;gap:6px;flex-wrap:wrap;}
+.sc-samp-btn{font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid rgba(245,239,230,.1);
+  background:rgba(245,239,230,.04);color:rgba(245,239,230,.45);cursor:pointer;transition:all .18s;}
+.sc-samp-btn:hover,.sc-samp-btn.on{background:rgba(201,169,110,.12);border-color:rgba(201,169,110,.3);color:var(--gold);}
+.sc-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;}
+
+/* ══ BUILDER LAYOUT ═════════════════════════════════════════════════════════ */
+#builder{display:flex;flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;}
+#builder.hidden{display:none;}
+
+/* Col 1 — Day list */
+#col-days{width:200px;min-width:200px;background:rgba(4,17,31,.7);
+  border-right:1px solid rgba(201,169,110,.1);display:flex;flex-direction:column;
+  padding:14px 12px;gap:8px;overflow:hidden;}
+#col-days .col-hdr{font-size:9px;font-weight:600;color:rgba(245,239,230,.28);
+  letter-spacing:.14em;text-transform:uppercase;padding:0 4px;margin-bottom:2px;flex-shrink:0;}
+#day-list{display:flex;flex-direction:column;gap:4px;overflow-y:auto;flex:1;}
+.day-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;
+  border:1px solid rgba(245,239,230,.07);background:rgba(245,239,230,.02);
+  cursor:pointer;transition:all .18s;user-select:none;}
+.day-item:hover{border-color:rgba(201,169,110,.25);background:rgba(201,169,110,.05);}
+.day-item.active{border-color:rgba(201,169,110,.4);background:rgba(201,169,110,.1);}
+.day-num{font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;font-weight:300;
+  color:var(--gold);min-width:22px;text-align:center;}
+.day-info{flex:1;min-width:0;}
+.day-label{font-size:11px;color:rgba(245,239,230,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-date{font-size:9px;color:rgba(245,239,230,.3);margin-top:1px;}
+.day-count{font-size:9px;color:rgba(245,239,230,.25);background:rgba(245,239,230,.06);
+  border-radius:10px;padding:1px 6px;flex-shrink:0;}
+#add-day-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px;
+  border-radius:6px;border:1px dashed rgba(245,239,230,.1);background:transparent;
+  color:rgba(245,239,230,.28);cursor:pointer;transition:all .18s;font-size:11px;
+  font-family:'DM Sans',sans-serif;flex-shrink:0;}
+#add-day-btn:hover{border-color:rgba(201,169,110,.3);color:var(--gold);}
+
+/* Col 2 — Daily planner */
+#col-planner{flex:1 1 320px;min-width:320px;display:flex;flex-direction:column;
+  border-right:1px solid rgba(201,169,110,.1);overflow:hidden;}
+#planner-hdr{height:48px;flex-shrink:0;display:flex;align-items:center;gap:12px;
+  padding:0 20px;border-bottom:1px solid rgba(201,169,110,.08);
+  background:rgba(4,17,31,.5);}
+.planner-day-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:300;color:var(--gold-light);}
+.planner-day-sub{font-size:11px;color:rgba(245,239,230,.3);}
+#planner-hdr .edit-label{font-size:10px;color:rgba(245,239,230,.22);cursor:pointer;
+  margin-left:auto;transition:color .18s;}
+#planner-hdr .edit-label:hover{color:var(--gold);}
+#activity-list{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px;}
+.act-block{display:flex;gap:14px;padding:12px 14px;border-radius:8px;
+  border:1px solid rgba(245,239,230,.07);background:rgba(245,239,230,.02);
+  transition:all .18s;cursor:grab;position:relative;}
+.act-block:hover{border-color:rgba(201,169,110,.2);background:rgba(201,169,110,.03);}
+.act-block.dragging{opacity:.4;}
+.act-time{font-size:11px;color:var(--gold);font-weight:500;min-width:46px;padding-top:2px;letter-spacing:.03em;}
+.act-body{flex:1;min-width:0;}
+.act-title{font-size:13px;font-weight:500;color:rgba(245,239,230,.8);margin-bottom:3px;}
+.act-desc{font-size:11px;color:rgba(245,239,230,.32);line-height:1.5;}
+.act-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;}
+.act-tag{font-size:9px;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;
+  border-radius:3px;display:inline-block;}
+.tag-food{background:rgba(201,169,110,.1);color:var(--gold);border:1px solid rgba(201,169,110,.2);}
+.tag-sight{background:rgba(111,172,212,.1);color:#6facd4;border:1px solid rgba(111,172,212,.2);}
+.tag-hotel{background:rgba(125,168,130,.1);color:#7da882;border:1px solid rgba(125,168,130,.2);}
+.tag-transport{background:rgba(245,239,230,.06);color:rgba(245,239,230,.4);border:1px solid rgba(245,239,230,.1);}
+.tag-activity{background:rgba(180,130,200,.1);color:#c49fd8;border:1px solid rgba(180,130,200,.2);}
+.act-drag-handle{
+  display:flex;align-items:center;justify-content:center;
+  width:28px;align-self:stretch;flex-shrink:0;
+  color:rgba(245,239,230,.18);font-size:16px;cursor:grab;
+  touch-action:none;user-select:none;-webkit-user-select:none;
+  border-left:1px solid rgba(245,239,230,.06);margin-left:8px;padding-left:8px;
+  transition:color .15s;}
+.act-drag-handle:hover{color:rgba(201,169,110,.6);}
+.act-block.drag-over{border-color:rgba(201,169,110,.5)!important;
+  background:rgba(201,169,110,.08)!important;transform:scale(1.01);}
+.act-block.drag-ghost{opacity:.3;transform:scale(.98);}
+.act-remove{position:absolute;right:28px;top:8px;width:18px;height:18px;border-radius:50%;
+  background:none;border:none;color:rgba(245,239,230,.15);cursor:pointer;font-size:13px;
+  display:none;align-items:center;justify-content:center;transition:color .15s;}
+.act-block:hover .act-remove{display:flex;}
+.act-remove:hover{color:rgba(220,80,80,.7);}
+#add-act-btn{display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:8px;
+  border:1px dashed rgba(245,239,230,.1);background:transparent;color:rgba(245,239,230,.28);
+  cursor:pointer;transition:all .18s;font-size:11px;font-family:'DM Sans',sans-serif;
+  flex-shrink:0;margin:0 20px 16px;}
+#add-act-btn:hover{border-color:rgba(201,169,110,.3);color:var(--gold);}
+
+/* Col 3 — Saved activities pool */
+#col-pool{width:240px;min-width:240px;background:rgba(4,17,31,.5);
+  border-right:1px solid rgba(201,169,110,.1);display:flex;flex-direction:column;overflow:hidden;}
+#col-pool .col-hdr{font-size:9px;font-weight:600;color:rgba(245,239,230,.28);
+  letter-spacing:.14em;text-transform:uppercase;padding:14px 14px 8px;flex-shrink:0;
+  border-bottom:1px solid rgba(201,169,110,.07);}
+#col-pool .col-hdr span{color:rgba(245,239,230,.18);font-weight:400;margin-left:4px;}
+#pool-filters{display:flex;gap:4px;padding:8px 10px;flex-wrap:wrap;flex-shrink:0;
+  border-bottom:1px solid rgba(201,169,110,.07);}
+.pool-filter{font-size:9px;padding:3px 8px;border-radius:3px;
+  border:1px solid rgba(245,239,230,.08);background:transparent;
+  color:rgba(245,239,230,.3);cursor:pointer;transition:all .15s;}
+.pool-filter:hover,.pool-filter.on{background:rgba(201,169,110,.1);
+  border-color:rgba(201,169,110,.25);color:var(--gold);}
+#pool-list{flex:1;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px;}
+.pool-item{padding:9px 11px;border-radius:7px;border:1px solid rgba(245,239,230,.08);
+  background:rgba(245,239,230,.02);cursor:pointer;transition:all .18s;position:relative;}
+.pool-item:hover{border-color:rgba(201,169,110,.25);background:rgba(201,169,110,.05);}
+.pool-item.assigned{opacity:.38;cursor:default;}
+.pool-item.assigned:hover{border-color:rgba(245,239,230,.08);background:rgba(245,239,230,.02);}
+.pool-title{font-size:11.5px;color:rgba(245,239,230,.72);margin-bottom:2px;font-weight:500;}
+.pool-meta{font-size:9.5px;color:rgba(245,239,230,.28);display:flex;align-items:center;gap:5px;}
+.pool-src{font-size:9px;color:rgba(201,169,110,.4);margin-top:4px;}
+.pool-add-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:20px;height:20px;border-radius:50%;background:rgba(201,169,110,.15);
+  border:1px solid rgba(201,169,110,.3);color:var(--gold);font-size:13px;
+  display:none;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
+.pool-item:hover:not(.assigned) .pool-add-btn{display:flex;}
+.pool-add-btn:hover{background:rgba(201,169,110,.3);}
+.pool-assigned-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  font-size:9px;color:rgba(245,239,230,.22);letter-spacing:.04em;}
+
+/* Col 4 — Mini map */
+#col-map{width:220px;min-width:220px;display:flex;flex-direction:column;overflow:hidden;
+  background:rgba(3,10,20,.8);}
+#col-map .col-hdr{font-size:9px;font-weight:600;color:rgba(245,239,230,.28);
+  letter-spacing:.14em;text-transform:uppercase;padding:14px 14px 8px;flex-shrink:0;
+  border-bottom:1px solid rgba(201,169,110,.07);display:flex;align-items:center;}
+#col-map .col-hdr .expand-btn{margin-left:auto;font-size:10px;color:rgba(201,169,110,.45);
+  cursor:pointer;padding:2px 6px;border-radius:3px;border:1px solid rgba(201,169,110,.15);
+  transition:all .18s;}
+#col-map .col-hdr .expand-btn:hover{background:rgba(201,169,110,.1);color:var(--gold);}
+#mini-map-wrap{flex:1;position:relative;overflow:hidden;cursor:pointer;}
+#mini-map-wrap:hover #map-expand-hint{opacity:1;}
+#map-iframe{width:100%;height:100%;border:none;display:block;}
+#map-pin-list{padding:8px 10px;border-top:1px solid rgba(201,169,110,.07);
+  max-height:160px;overflow-y:auto;flex-shrink:0;}
+.map-pin{display:flex;align-items:center;gap:7px;padding:4px 2px;font-size:10px;
+  color:rgba(245,239,230,.45);cursor:pointer;transition:color .15s;border-radius:3px;}
+.map-pin:hover{color:var(--ivory-dim);}
+.map-pin-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-assigned{background:var(--gold);}
+.dot-saved{background:rgba(111,172,212,.7);}
+#map-expand-hint{position:absolute;inset:0;background:rgba(2,10,20,.45);
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;
+  font-size:11px;color:rgba(245,239,230,.7);letter-spacing:.04em;pointer-events:none;}
+
+/* Map expanded overlay */
+#map-fullscreen{position:fixed;inset:0;background:rgba(2,10,20,.92);
+  z-index:400;display:none;flex-direction:column;}
+#map-fullscreen.open{display:flex;}
+#map-fs-hdr{height:48px;flex-shrink:0;display:flex;align-items:center;padding:0 18px;gap:12px;
+  border-bottom:1px solid rgba(201,169,110,.12);
+  background:linear-gradient(90deg,rgba(4,17,31,.99),rgba(5,20,36,.98));}
+#map-fs-hdr .fs-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;
+  font-weight:300;color:var(--gold-light);}
+#map-fs-hdr .fs-close{margin-left:auto;font-size:11px;color:rgba(245,239,230,.4);
+  cursor:pointer;padding:5px 12px;border-radius:4px;border:1px solid rgba(245,239,230,.12);
+  background:transparent;transition:all .18s;}
+#map-fs-hdr .fs-close:hover{color:var(--ivory);border-color:rgba(245,239,230,.25);}
+#map-fs-body{flex:1;position:relative;}
+#map-fs-iframe{width:100%;height:100%;border:none;display:block;}
+
+/* Budget bar */
+#budget-bar{height:36px;flex-shrink:0;display:flex;align-items:center;gap:14px;
+  padding:0 16px;border-top:1px solid rgba(201,169,110,.08);
+  background:rgba(4,17,31,.6);font-size:10px;}
+.budget-label{color:rgba(245,239,230,.3);letter-spacing:.08em;text-transform:uppercase;}
+.budget-used{color:var(--gold);font-weight:600;font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;}
+.budget-total{color:rgba(245,239,230,.28);}
+#budget-track{flex:1;height:4px;background:rgba(245,239,230,.08);border-radius:2px;max-width:160px;}
+#budget-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#7da882,#c9a96e);
+  transition:width .4s ease;}
+
+/* Add activity quick modal */
+#act-modal{position:fixed;inset:0;background:rgba(2,12,22,.75);backdrop-filter:blur(10px);
+  z-index:300;display:none;align-items:center;justify-content:center;}
+#act-modal.open{display:flex;}
+#act-modal-card{background:linear-gradient(135deg,rgba(4,17,31,.99),rgba(6,22,42,.99));
+  border:1px solid rgba(201,169,110,.2);border-radius:12px;padding:24px 28px;width:400px;
+  max-width:calc(100vw - 32px);box-shadow:0 24px 60px rgba(0,0,0,.75);animation:popIn .22s ease;}
+.am-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;color:var(--gold-light);margin-bottom:16px;}
+.am-field{margin-bottom:12px;}
+.am-field label{font-size:9.5px;font-weight:600;color:rgba(245,239,230,.3);letter-spacing:.1em;
+  text-transform:uppercase;display:block;margin-bottom:5px;}
+.am-field input,.am-field select,.am-field textarea{width:100%;background:rgba(245,239,230,.04);
+  border:1px solid rgba(245,239,230,.12);border-radius:5px;padding:7px 11px;
+  font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ivory);outline:none;
+  transition:border-color .18s;box-sizing:border-box;}
+.am-field input:focus,.am-field select:focus,.am-field textarea:focus{border-color:rgba(201,169,110,.4);}
+.am-field select option{background:#071828;}
+.am-field textarea{resize:vertical;min-height:60px;line-height:1.5;}
+.am-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.am-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;}
+</style>
+</head>
+<body class="page-itinerary">
+
+<!-- ══ GLOBAL TOPBAR ════════════════════════════════════════════════════════ -->
+<div id="g-topbar">
+  <a href="index.html" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:19px;color:var(--gold-light);letter-spacing:.06em;opacity:.9;white-space:nowrap;margin-right:8px;text-decoration:none">Travelite</a>
+  <a href="index.html" class="gtab">🌍 Discovery</a>
+  <a href="bucketlist.html" class="gtab">⭐ Bucket List</a>
+  <a href="itinerary.html" class="gtab on">🗺 Itinerary</a>
+  <div style="width:1px;height:26px;background:rgba(201,169,110,.15);margin:0 8px"></div>
+  <div style="display:flex;flex:1;align-items:center;gap:10px">
+    <div id="topbar-dest" style="font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;color:var(--gold-light)"></div>
+    <div id="topbar-sub" style="font-size:10px;color:rgba(245,239,230,.3);letter-spacing:.04em"></div>
+    <div style="flex:1"></div>
+    <button onclick="openNewItinerary()" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:5px;border:1px solid rgba(245,239,230,.12);background:transparent;color:rgba(245,239,230,.4);cursor:pointer;font-family:'DM Sans',sans-serif">＋ New Itinerary</button>
+    <a href="bucketlist.html" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:5px;border:1px solid rgba(245,239,230,.12);background:transparent;color:rgba(245,239,230,.4);text-decoration:none;font-family:'DM Sans',sans-serif">← Bucket List</a>
+    <button onclick="exportPDF()" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:5px;border:1px solid rgba(201,169,110,.3);background:rgba(201,169,110,.12);color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif">Export PDF</button>
+  </div>
+</div>
+
+<div id="page-body">
+
+  <!-- ══ SETUP POPUP ══════════════════════════════════════════════════════════ -->
+  <div id="setup-overlay">
+    <div id="setup-card">
+      <div class="sc-title">Plan Your Trip</div>
+      <div class="sc-sub">Build your itinerary</div>
+
+      <div class="sc-dest" id="sc-dest-label">Destination</div>
+
+      <div class="sc-row">
+        <div class="sc-field">
+          <label>Number of Days</label>
+          <input type="number" id="sc-days" min="1" max="30" value="5" placeholder="e.g. 7"/>
+        </div>
+        <div class="sc-field">
+          <label>Budget Tier</label>
+          <select id="sc-budget-tier">
+            <option value="budget">$ Budget</option>
+            <option value="moderate" selected>$$ Moderate</option>
+            <option value="premium">$$$ Premium</option>
+            <option value="luxury">$$$$ Luxury</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sc-row">
+        <div class="sc-field">
+          <label>Start Date <span style="color:rgba(245,239,230,.2)">optional</span></label>
+          <input type="date" id="sc-start-date"/>
+        </div>
+        <div class="sc-field">
+          <label>Specific Budget <span style="color:rgba(245,239,230,.2)">optional</span></label>
+          <input type="text" id="sc-budget-amt" placeholder="e.g. $3,000"/>
+        </div>
+      </div>
+
+      <div class="sc-import">
+        <div class="sc-import-hdr">
+          <span>Import Community Itinerary</span>
+          <em>optional — or start from scratch</em>
+        </div>
+        <div class="sc-sample" id="sc-samples"></div>
+      </div>
+
+      <div class="sc-actions">
+        <a href="bucketlist.html" class="btn" style="text-decoration:none;display:inline-flex;align-items:center;">Cancel</a>
+        <button class="btn s" onclick="launchBuilder()">Build Itinerary →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BUILDER ═══════════════════════════════════════════════════════════════ -->
+  <div id="builder" class="hidden">
+
+    <!-- Col 1: Day list -->
+    <div id="col-days">
+      <div class="col-hdr">Days</div>
+      <div id="day-list"></div>
+      <button id="add-day-btn" onclick="addDay()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add Day
+      </button>
+    </div>
+
+    <!-- Col 2: Daily planner -->
+    <div id="col-planner">
+      <div id="planner-hdr">
+        <div>
+          <div class="planner-day-title" id="planner-day-title">Day 1</div>
+          <div class="planner-day-sub" id="planner-day-sub">Arrival Day</div>
+        </div>
+        <span class="edit-label" onclick="editDayTitle()">✎ rename</span>
+      </div>
+      <div id="activity-list"></div>
+      <button id="add-act-btn" onclick="openActModal()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add activity, meal, or transport
+      </button>
+      <div id="budget-bar">
+        <span class="budget-label">Spent</span>
+        <span class="budget-used" id="budget-used">$0</span>
+        <span class="budget-total" id="budget-total">/ $0</span>
+        <div id="budget-track"><div id="budget-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Col 3: Activity pool -->
+    <div id="col-pool">
+      <div class="col-hdr">Saved Activities <span id="pool-count"></span></div>
+      <div id="pool-filters">
+        <div class="pool-filter on" data-f="all" onclick="setPoolFilter(this)">All</div>
+        <div class="pool-filter" data-f="food" onclick="setPoolFilter(this)">Food</div>
+        <div class="pool-filter" data-f="sight" onclick="setPoolFilter(this)">Sights</div>
+        <div class="pool-filter" data-f="activity" onclick="setPoolFilter(this)">Activities</div>
+        <div class="pool-filter" data-f="hotel" onclick="setPoolFilter(this)">Hotels</div>
+      </div>
+      <div id="pool-list"></div>
+    </div>
+
+    <!-- Col 4: Mini map -->
+    <div id="col-map">
+      <div class="col-hdr">
+        Map
+        <span class="expand-btn" onclick="expandMap()">⤢ expand</span>
+      </div>
+      <div id="mini-map-wrap" onclick="expandMap()">
+        <iframe id="map-iframe" src="" title="Trip map"></iframe>
+        <div id="map-expand-hint">Click to expand</div>
+      </div>
+      <div id="map-pin-list"></div>
+    </div>
+
+  </div><!-- /builder -->
+
+</div><!-- /page-body -->
+
+<!-- ══ MAP FULLSCREEN ════════════════════════════════════════════════════════ -->
+<div id="map-fullscreen">
+  <div id="map-fs-hdr">
+    <div class="fs-title" id="map-fs-title">Trip Map</div>
+    <button class="fs-close" onclick="closeMap()">✕ Close</button>
+  </div>
+  <div id="map-fs-body">
+    <iframe id="map-fs-iframe" src="" title="Full trip map"></iframe>
+  </div>
+</div>
+
+<!-- ══ ADD ACTIVITY MODAL ════════════════════════════════════════════════════ -->
+<div id="act-modal" onclick="if(event.target===this)closeActModal()">
+  <div id="act-modal-card">
+    <div class="am-title">Add to Day <span id="am-day-label"></span></div>
+    <div class="am-row">
+      <div class="am-field">
+        <label>Time</label>
+        <input type="time" id="am-time" value="10:00"/>
+      </div>
+      <div class="am-field">
+        <label>Type</label>
+        <select id="am-type">
+          <option value="sight">Sightseeing</option>
+          <option value="food">Food & Drink</option>
+          <option value="activity">Activity</option>
+          <option value="hotel">Hotel / Stay</option>
+          <option value="transport">Transport</option>
+        </select>
+      </div>
+    </div>
+    <div class="am-field">
+      <label>Title</label>
+      <input type="text" id="am-title" placeholder="e.g. Fushimi Inari Shrine"/>
+    </div>
+    <div class="am-field">
+      <label>Notes <span style="color:rgba(245,239,230,.2)">optional</span></label>
+      <textarea id="am-notes" placeholder="Tips, reservations, costs…"></textarea>
+    </div>
+    <div class="am-field">
+      <label>Cost <span style="color:rgba(245,239,230,.2)">optional</span></label>
+      <input type="text" id="am-cost" placeholder="e.g. $45"/>
+    </div>
+    <div class="am-actions">
+      <button class="btn" onclick="closeActModal()">Cancel</button>
+      <button class="btn s" onclick="saveActivity()">Add to Itinerary</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Community itinerary templates (hardcoded sample set)
+const COMMUNITY_ITINERARIES = {
+  kyoto: {
+    id:'kyoto-classic', label:'Kyoto Classic 5D', author:'@sakura_traveller',
+    days:5, budget:'premium',
+    activities:[
+      {day:1,time:'14:00',type:'transport',title:'Arrive KIX — Haruka Express',desc:'~75 min to Kyoto Station. Get IC card at airport.',cost:0},
+      {day:1,time:'16:30',type:'hotel',title:'Check-in: Gion Ryokan',desc:'Traditional tatami inn. Onsen + kaiseki dinner included.',cost:280},
+      {day:1,time:'19:00',type:'sight',title:'Hanamikoji Street at Dusk',desc:'Lantern-lit geisha district. Best light after 6pm.',cost:0},
+      {day:2,time:'07:00',type:'sight',title:'Fushimi Inari — early morning',desc:'Arrive before 8am to beat crowds. Full torii hike ~2hrs.',cost:0},
+      {day:2,time:'11:00',type:'sight',title:'Kinkaku-ji (Golden Pavilion)',desc:'Book timed entry online. Allow 45 min.',cost:12},
+      {day:2,time:'13:00',type:'food',title:'Nishiki Market lunch',desc:'Street food paradise. Try yuba, tamagoyaki, matcha everything.',cost:25},
+      {day:3,time:'09:00',type:'sight',title:'Arashiyama Bamboo Grove',desc:'Early morning before tour groups. 20 min walk.',cost:0},
+      {day:3,time:'10:30',type:'sight',title:'Tenryu-ji Garden',desc:'UNESCO garden. Stunning pond landscape.',cost:9},
+      {day:3,time:'14:00',type:'activity',title:'Tea Ceremony — Urasenke',desc:'90-min authentic ceremony. Reserve weeks ahead.',cost:65},
+      {day:4,time:'09:00',type:'sight',title:'Philosopher\'s Path',desc:'Canal walk. Cherry blossoms in spring.',cost:0},
+      {day:4,time:'11:00',type:'sight',title:'Nanzen-ji Temple',desc:'Grand sanmon gate. Free grounds, ¥600 main hall.',cost:6},
+      {day:4,time:'20:00',type:'food',title:'Pontocho Alley dinner',desc:'Narrow lantern-lit alley. Book kaiseki or yakitori.',cost:90},
+      {day:5,time:'08:00',type:'transport',title:'Day trip: Nara',desc:'50-min JR Nara Line. Deer park + Todai-ji.',cost:20},
+      {day:5,time:'19:00',type:'food',title:'Farewell dinner: Gion',desc:'Last kaiseki. Budget ¥15,000+ pp.',cost:120},
+    ]
+  },
+  paris: {
+    id:'paris-classic', label:'Paris Essentials 4D', author:'@fleur_de_voyage',
+    days:4, budget:'moderate',
+    activities:[
+      {day:1,time:'15:00',type:'hotel',title:'Check-in: Saint-Germain',desc:'Central location. Walk to everything.',cost:200},
+      {day:1,time:'17:00',type:'sight',title:'Eiffel Tower — golden hour',desc:'Trocadéro viewpoint for photos. Book tower tickets in advance.',cost:28},
+      {day:1,time:'20:30',type:'food',title:'Dinner: Le Procope',desc:'Paris\'s oldest café. Classic French cuisine.',cost:75},
+      {day:2,time:'09:00',type:'sight',title:'Louvre — morning',desc:'Pre-book timed entry. Focus: Denon wing for Mona Lisa.',cost:22},
+      {day:2,time:'14:00',type:'sight',title:'Musée d\'Orsay',desc:'Impressionist masterpieces. Buy combo ticket.',cost:16},
+      {day:2,time:'19:00',type:'food',title:'Seine riverboat dinner',desc:'Bateaux-Mouches. Touristy but magical at night.',cost:95},
+      {day:3,time:'10:00',type:'sight',title:'Sacré-Cœur & Montmartre',desc:'Climb for city views. Artists\' quarter below.',cost:0},
+      {day:3,time:'13:00',type:'food',title:'Lunch: Marché des Enfants Rouges',desc:'Paris\'s oldest covered market. Japanese, Moroccan, French.',cost:30},
+      {day:3,time:'15:30',type:'activity',title:'Père Lachaise Cemetery',desc:'Jim Morrison, Oscar Wilde, Édith Piaf. Bring the map.',cost:0},
+      {day:4,time:'10:00',type:'sight',title:'Versailles day trip',desc:'RER C from central Paris. Book skip-the-line tickets.',cost:20},
+    ]
+  },
+  bali: {
+    id:'bali-balance', label:'Bali Balance 7D', author:'@island_wanderer',
+    days:7, budget:'budget',
+    activities:[
+      {day:1,time:'16:00',type:'hotel',title:'Check-in: Ubud villa',desc:'Rice terrace views. Pool villa for ~$80/night.',cost:80},
+      {day:1,time:'18:30',type:'food',title:'Warung dinner: Bebek betutu',desc:'Local duck dish. Slow-cooked overnight.',cost:12},
+      {day:2,time:'06:00',type:'activity',title:'Sunrise: Mount Batur hike',desc:'3am depart. Guide required. Breakfast at summit.',cost:45},
+      {day:2,time:'14:00',type:'activity',title:'Coffee plantation tour',desc:'Kopi luwak tasting. Free if you buy.',cost:5},
+      {day:3,time:'09:00',type:'sight',title:'Tegalalang Rice Terraces',desc:'Golden hour best. Early to beat Insta crowds.',cost:3},
+      {day:3,time:'11:00',type:'sight',title:'Tirta Empul Temple',desc:'Sacred spring. Bring sarong (provided at entrance).',cost:2},
+      {day:4,time:'08:00',type:'activity',title:'White-water rafting: Ayung',desc:'Grade 2-3. Half-day. Hotel pickup available.',cost:35},
+      {day:4,time:'18:00',type:'sight',title:'Tanah Lot sunset',desc:'Most iconic view in Bali. Arrive 1hr early.',cost:4},
+      {day:5,time:'10:00',type:'hotel',title:'Move to Seminyak',desc:'2hr drive. Beach club territory.',cost:0},
+      {day:5,time:'18:00',type:'food',title:'Sunset cocktails: Ku De Ta',desc:'Bali\'s iconic beach club. Pricier but worth one evening.',cost:40},
+      {day:6,time:'09:00',type:'activity',title:'Surf lesson: Kuta beach',desc:'2hr lesson for beginners. Boards included.',cost:25},
+      {day:6,time:'20:00',type:'food',title:'Seminyak dinner strip',desc:'Sardine, Bikini, Ku De Ta. Book Sardine ahead.',cost:60},
+      {day:7,time:'09:00',type:'sight',title:'Uluwatu Temple',desc:'Cliff-top temple. Kecak fire dance at 6pm.',cost:4},
+    ]
+  },
+  nyc: {
+    id:'nyc-weekend', label:'NYC Long Weekend 3D', author:'@concrete_explorer',
+    days:3, budget:'moderate',
+    activities:[
+      {day:1,time:'11:00',type:'hotel',title:'Check-in: Midtown hotel',desc:'Good transit access to everything.',cost:250},
+      {day:1,time:'14:00',type:'sight',title:'High Line & Chelsea Market',desc:'Walk the elevated park. End at Chelsea Market for lunch.',cost:0},
+      {day:1,time:'17:00',type:'sight',title:'Whitney Museum',desc:'American art. Rooftop terrace views.',cost:25},
+      {day:1,time:'20:00',type:'food',title:'Dinner: Le Bernardin',desc:'Best seafood in NYC. Book months ahead.',cost:180},
+      {day:2,time:'09:00',type:'sight',title:'Central Park morning run',desc:'Shakespeare Garden, Bethesda Fountain, Reservoir.',cost:0},
+      {day:2,time:'11:30',type:'sight',title:'MET Museum',desc:'Suggested donation. Egyptian wing + rooftop.',cost:30},
+      {day:2,time:'15:00',type:'sight',title:'The Vessel & Hudson Yards',desc:'Honeycomb structure. Edge observation deck nearby.',cost:35},
+      {day:2,time:'20:00',type:'food',title:'Dinner: Minetta Tavern',desc:'West Village classic. Black label burger unmissable.',cost:90},
+      {day:3,time:'09:30',type:'food',title:'Brunch: Russ & Daughters',desc:'Lower East Side icon. Bagels + lox. Expect a queue.',cost:30},
+      {day:3,time:'12:00',type:'sight',title:'Brooklyn Bridge walk',desc:'Walk from Manhattan side. Views back of skyline.',cost:0},
+      {day:3,time:'14:00',type:'sight',title:'DUMBO & Brooklyn Heights',desc:'Cobblestone streets. Manhattan Bridge framing shot.',cost:0},
+    ]
+  },
+};
+
+// Additional pool activities (not from main itinerary — "pinned from other users")
+const POOL_EXTRAS = {
+  kyoto:[
+    {id:'k1',type:'food',title:'Breakfast at Weekenders Coffee',desc:'Local roastery. Best pour-over in Kyoto.',src:'@mornings_in_japan'},
+    {id:'k2',type:'activity',title:'Ninja experience: En',desc:'90-min immersive ninja dojo. Great for adults too.',src:'@hidden_kyoto'},
+    {id:'k3',type:'sight',title:'Daitoku-ji Temple Complex',desc:'15 sub-temples. Most visitors miss this one.',src:'@offpath_japan'},
+    {id:'k4',type:'food',title:'Ramen: Ichiran Kyoto',desc:'Solo booth ramen. Rich tonkotsu. No reservations needed.',src:'@ramen_pilgrim'},
+    {id:'k5',type:'activity',title:'Kimono rental: Gion',desc:'2hr rental, full styling included. Book morning slot.',src:'@sakura_traveller'},
+    {id:'k6',type:'sight',title:'Nijo Castle night illumination',desc:'Spring/autumn only. Stunning projections.',src:'@lights_of_japan'},
+  ],
+  paris:[
+    {id:'p1',type:'food',title:'Croissant tour: Stohrer Bakery',desc:'Paris\'s oldest pâtisserie since 1730.',src:'@bread_pilgrim'},
+    {id:'p2',type:'sight',title:'Palais Royal gardens',desc:'Hidden gem. No crowds. Striped columns.',src:'@fleur_de_voyage'},
+    {id:'p3',type:'activity',title:'Cooking class: La Cuisine',desc:'3-hr French pastry class. Macarons + croissants.',src:'@paris_kitchen'},
+    {id:'p4',type:'food',title:'Wine bar: Frenchie Bar à Vins',desc:'Natural wine. Small plates. Book 2 weeks ahead.',src:'@cave_crawler'},
+    {id:'p5',type:'sight',title:'Sainte-Chapelle',desc:'Gothic stained glass. Often overlooked vs Notre-Dame.',src:'@gothic_france'},
+  ],
+  bali:[
+    {id:'b1',type:'activity',title:'Yoga: The Yoga Barn',desc:'Multi-style classes. Canggu or Ubud locations.',src:'@balance_bali'},
+    {id:'b2',type:'food',title:'Smoothie bowl: Bali Bowls',desc:'Best acai in Canggu. Always a queue.',src:'@island_wanderer'},
+    {id:'b3',type:'sight',title:'Sekumpul Waterfall',desc:'North Bali. 45-min trek. Most beautiful on the island.',src:'@waterfalls_only'},
+    {id:'b4',type:'activity',title:'Freediving course: Amed',desc:'2-day course. Crystal visibility. Incredible reefs.',src:'@deep_blue_bali'},
+  ],
+  nyc:[
+    {id:'n1',type:'food',title:'Joe\'s Pizza: West Village',desc:'$3 slices. NYC institution since 1975.',src:'@slice_life'},
+    {id:'n2',type:'sight',title:'The Cloisters',desc:'Medieval art museum in Fort Tryon Park. Underrated.',src:'@concrete_explorer'},
+    {id:'n3',type:'activity',title:'Comedy Cellar',desc:'Legendary West Village club. Book online. Late shows best.',src:'@nyc_nights'},
+    {id:'n4',type:'food',title:'Dinner: Don Angie',desc:'Italian-American. Book exactly 30 days out online.',src:'@table_for_one'},
+  ],
+};
+
+// Map embed URLs (OpenStreetMap — no API key needed)
+const MAP_URLS = {
+  kyoto:'https://www.openstreetmap.org/export/embed.html?bbox=135.7%2C34.99%2C135.78%2C35.03&layer=mapnik',
+  paris:'https://www.openstreetmap.org/export/embed.html?bbox=2.31%2C48.84%2C2.38%2C48.88&layer=mapnik',
+  bali:'https://www.openstreetmap.org/export/embed.html?bbox=115.1%2C-8.75%2C115.28%2C-8.60&layer=mapnik',
+  nyc:'https://www.openstreetmap.org/export/embed.html?bbox=-74.02%2C40.70%2C-73.93%2C40.78&layer=mapnik',
+  default:'https://www.openstreetmap.org/export/embed.html?bbox=-10%2C35%2C30%2C55&layer=mapnik',
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let IT = {
+  dest: '', country: '', days: 5, startDate: null,
+  budgetTier: 'moderate', budgetAmt: 0,
+  activities: [],   // {id, day, time, type, title, desc, cost}
+  activeDayIdx: 0,
+  poolAssigned: new Set(),
+  selectedTemplate: null,
+};
+
+const STORAGE_KEY = 'travelite_itineraries';
+
+function loadItineraries() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveCurrentItinerary() {
+  const all = loadItineraries();
+  all[IT.dest.toLowerCase()] = IT;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SETUP POPUP
+// ══════════════════════════════════════════════════════════════════════════════
+function initSetup(destName, country, budgetHint) {
+  IT.dest = destName || 'Destination';
+  IT.country = country || '';
+  document.getElementById('sc-dest-label').textContent = '📍 ' + IT.dest + (IT.country ? ', ' + IT.country : '');
+  if (budgetHint) document.getElementById('sc-budget-tier').value = budgetHint;
+
+  // Populate community template buttons
+  const key = destName ? destName.toLowerCase().split('/')[0].trim() : '';
+  const tmpl = COMMUNITY_ITINERARIES[key];
+  const sampDiv = document.getElementById('sc-samples');
+  sampDiv.innerHTML = '';
+
+  // Show any matching templates
+  const matches = Object.values(COMMUNITY_ITINERARIES).filter(t =>
+    !key || key.length < 3 || t.id.includes(key) ||
+    t.label.toLowerCase().includes(key)
+  );
+
+  if (matches.length === 0) {
+    // Show all as generic suggestions
+    Object.values(COMMUNITY_ITINERARIES).forEach(t => {
+      const btn = document.createElement('div');
+      btn.className = 'sc-samp-btn';
+      btn.textContent = t.label + ' · ' + t.author;
+      btn.onclick = () => {
+        sampDiv.querySelectorAll('.sc-samp-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        IT.selectedTemplate = t;
+        document.getElementById('sc-days').value = t.days;
+        document.getElementById('sc-budget-tier').value = t.budget;
+      };
+      sampDiv.appendChild(btn);
+    });
+  } else {
+    matches.forEach(t => {
+      const btn = document.createElement('div');
+      btn.className = 'sc-samp-btn';
+      btn.textContent = t.label + ' · ' + t.author;
+      btn.onclick = () => {
+        sampDiv.querySelectorAll('.sc-samp-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        IT.selectedTemplate = t;
+        document.getElementById('sc-days').value = t.days;
+        document.getElementById('sc-budget-tier').value = t.budget;
+      };
+      sampDiv.appendChild(btn);
+    });
+  }
+}
+
+function launchBuilder() {
+  const days = parseInt(document.getElementById('sc-days').value) || 5;
+  const tier  = document.getElementById('sc-budget-tier').value;
+  const start = document.getElementById('sc-start-date').value;
+  const amt   = document.getElementById('sc-budget-amt').value;
+
+  IT.days = days;
+  IT.budgetTier = tier;
+  IT.startDate = start || null;
+  IT.budgetAmt = parseBudget(amt);
+  IT.activities = [];
+  IT.poolAssigned = new Set();
+
+  // Import template if selected
+  if (IT.selectedTemplate) {
+    const t = IT.selectedTemplate;
+    // Only import days that fit
+    IT.activities = t.activities
+      .filter(a => a.day <= days)
+      .map((a, i) => ({ ...a, id: 'imp_' + i }));
+  }
+
+  document.getElementById('setup-overlay').classList.add('hidden');
+  document.getElementById('builder').classList.remove('hidden');
+
+  updateTopbar();
+  renderDays();
+  renderActivities();
+  renderPool();
+  renderPins();
+  updateBudget();
+  loadMap();
+}
+
+function parseBudget(str) {
+  if (!str) return 0;
+  return parseInt(str.replace(/[^0-9]/g,'')) || 0;
+}
+
+function openNewItinerary() {
+  IT.selectedTemplate = null;
+  document.getElementById('sc-budget-tier').value = 'moderate';
+  document.getElementById('sc-days').value = 5;
+  document.getElementById('sc-start-date').value = '';
+  document.getElementById('sc-budget-amt').value = '';
+  document.getElementById('builder').classList.add('hidden');
+  document.getElementById('setup-overlay').classList.remove('hidden');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DAY LIST (Col 1)
+// ══════════════════════════════════════════════════════════════════════════════
+function renderDays() {
+  const list = document.getElementById('day-list');
+  list.innerHTML = '';
+  for (let d = 1; d <= IT.days; d++) {
+    const acts = IT.activities.filter(a => a.day === d);
+    const label = getDayLabel(d);
+    const dateStr = IT.startDate ? formatDayDate(IT.startDate, d - 1) : '';
+    const div = document.createElement('div');
+    div.className = 'day-item' + (d - 1 === IT.activeDayIdx ? ' active' : '');
+    div.onclick = () => selectDay(d - 1);
+    div.innerHTML = `<div class="day-num">${d}</div>
+      <div class="day-info">
+        <div class="day-label">${label}</div>
+        ${dateStr ? `<div class="day-date">${dateStr}</div>` : ''}
+      </div>
+      <div class="day-count">${acts.length}</div>`;
+    list.appendChild(div);
+  }
+}
+
+function getDayLabel(d) {
+  if (d === 1) return 'Arrival Day';
+  if (d === IT.days) return 'Departure Day';
+  return 'Day ' + d;
+}
+
+function formatDayDate(startStr, offset) {
+  const dt = new Date(startStr);
+  dt.setDate(dt.getDate() + offset);
+  return dt.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+}
+
+function selectDay(idx) {
+  IT.activeDayIdx = idx;
+  renderDays();
+  renderActivities();
+  updatePlannerHdr();
+}
+
+function addDay() {
+  IT.days++;
+  renderDays();
+}
+
+function updatePlannerHdr() {
+  const d = IT.activeDayIdx + 1;
+  document.getElementById('planner-day-title').textContent = 'Day ' + d;
+  document.getElementById('planner-day-sub').textContent = getDayLabel(d);
+}
+
+function editDayTitle() {
+  const d = IT.activeDayIdx + 1;
+  const cur = getDayLabel(d);
+  const n = prompt('Rename Day ' + d + ':', cur);
+  // Store custom label (simple approach)
+  if (n && n.trim()) {
+    if (!IT.dayLabels) IT.dayLabels = {};
+    IT.dayLabels[d] = n.trim();
+    updatePlannerHdr();
+    renderDays();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ACTIVITY LIST (Col 2)
+// ══════════════════════════════════════════════════════════════════════════════
+// ── DRAG STATE ────────────────────────────────────────────────────────────────
+const DS = {
+  dragId: null,       // id of block being dragged
+  overId: null,       // id of block currently hovered over
+  touchEl: null,      // cloned ghost element for touch
+  touchOriginY: 0,    // touch start Y
+  touchStartId: null, // which block touch started on
+};
+
+function renderActivities() {
+  const day = IT.activeDayIdx + 1;
+  // Preserve manual order via _order field; fall back to time sort
+  const acts = IT.activities
+    .filter(a => a.day === day)
+    .sort((a, b) => {
+      if (a._order != null && b._order != null) return a._order - b._order;
+      return a.time.localeCompare(b.time);
+    });
+  const list = document.getElementById('activity-list');
+  list.innerHTML = '';
+  if (acts.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:32px 16px;color:rgba(245,239,230,.2);font-size:11px;letter-spacing:.06em">No activities yet — add below or drag from Saved Activities</div>';
+    return;
+  }
+  acts.forEach((act, i) => {
+    act._order = i; // stamp current visual order
+    const div = document.createElement('div');
+    div.className = 'act-block';
+    div.dataset.id = act.id;
+    div.innerHTML = `
+      <div class="act-time">${act.time}</div>
+      <div class="act-body">
+        <div class="act-title">${act.title}</div>
+        ${act.desc ? `<div class="act-desc">${act.desc}</div>` : ''}
+        <div class="act-tags">
+          <span class="act-tag ${tagClass(act.type)}">${tagLabel(act.type)}</span>
+          ${act.cost ? `<span style="font-size:9px;color:rgba(245,239,230,.28);padding-top:3px">$${act.cost}</span>` : ''}
+        </div>
+      </div>
+      <span class="act-drag-handle" title="Drag to reorder">⋮⋮</span>
+      <button class="act-remove" onclick="removeActivity('${act.id}')">×</button>`;
+
+    // ── Mouse / desktop drag (HTML5 DnD) ─────────────────────────────────────
+    const handle = div.querySelector('.act-drag-handle');
+
+    // Only start drag when handle is grabbed
+    handle.addEventListener('mousedown', () => { div.draggable = true; });
+    div.addEventListener('dragstart', e => {
+      DS.dragId = act.id;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', act.id);
+      setTimeout(() => div.classList.add('drag-ghost'), 0);
+    });
+    div.addEventListener('dragend', () => {
+      div.draggable = false;
+      div.classList.remove('drag-ghost');
+      list.querySelectorAll('.act-block').forEach(b => b.classList.remove('drag-over'));
+      if (DS.dragId && DS.overId && DS.dragId !== DS.overId) {
+        commitReorder(DS.dragId, DS.overId);
+      }
+      DS.dragId = null; DS.overId = null;
+    });
+    div.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (act.id !== DS.dragId) {
+        list.querySelectorAll('.act-block').forEach(b => b.classList.remove('drag-over'));
+        div.classList.add('drag-over');
+        DS.overId = act.id;
+      }
+    });
+    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+    div.addEventListener('drop', e => { e.preventDefault(); });
+
+    // ── Touch drag (mobile) ───────────────────────────────────────────────────
+    handle.addEventListener('touchstart', e => {
+      e.stopPropagation();
+      DS.touchStartId = act.id;
+      DS.touchOriginY = e.touches[0].clientY;
+      DS.dragId = act.id;
+
+      // Create floating ghost
+      const rect = div.getBoundingClientRect();
+      const ghost = div.cloneNode(true);
+      ghost.style.cssText = `
+        position:fixed;left:${rect.left}px;top:${rect.top}px;
+        width:${rect.width}px;z-index:999;pointer-events:none;
+        opacity:0.85;transform:scale(1.02);
+        box-shadow:0 12px 40px rgba(0,0,0,.6);
+        transition:none;background:rgba(6,22,40,.98);
+        border:1px solid rgba(201,169,110,.4);border-radius:8px;`;
+      ghost.id = 'touch-ghost';
+      document.body.appendChild(ghost);
+      DS.touchEl = ghost;
+      div.classList.add('drag-ghost');
+    }, {passive:true});
+
+    handle.addEventListener('touchmove', e => {
+      if (!DS.touchEl) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const dy = touch.clientY - DS.touchOriginY;
+      const rect = div.getBoundingClientRect();
+      DS.touchEl.style.top = (rect.top + dy) + 'px';
+
+      // Find which block we're hovering over
+      list.querySelectorAll('.act-block').forEach(b => b.classList.remove('drag-over'));
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const target = el ? el.closest('.act-block') : null;
+      if (target && target.dataset.id !== DS.dragId) {
+        target.classList.add('drag-over');
+        DS.overId = target.dataset.id;
+      }
+    }, {passive:false});
+
+    handle.addEventListener('touchend', e => {
+      e.stopPropagation();
+      if (DS.touchEl) { DS.touchEl.remove(); DS.touchEl = null; }
+      div.classList.remove('drag-ghost');
+      list.querySelectorAll('.act-block').forEach(b => b.classList.remove('drag-over'));
+      if (DS.dragId && DS.overId && DS.dragId !== DS.overId) {
+        commitReorder(DS.dragId, DS.overId);
+      }
+      DS.dragId = null; DS.overId = null; DS.touchStartId = null;
+    }, {passive:true});
+
+    list.appendChild(div);
+  });
+  updateBudget();
+}
+
+// Reorder: move dragId to position of overId in the current day's activity list
+function commitReorder(dragId, overId) {
+  const day = IT.activeDayIdx + 1;
+  const dayActs = IT.activities
+    .filter(a => a.day === day)
+    .sort((a, b) => (a._order ?? 0) - (b._order ?? 0));
+
+  const fromIdx = dayActs.findIndex(a => a.id === dragId);
+  const toIdx   = dayActs.findIndex(a => a.id === overId);
+  if (fromIdx < 0 || toIdx < 0) return;
+
+  // Splice dragId out and insert at toIdx
+  const [moved] = dayActs.splice(fromIdx, 1);
+  dayActs.splice(toIdx, 0, moved);
+
+  // Re-stamp _order on all reordered items
+  dayActs.forEach((a, i) => { a._order = i; });
+
+  renderActivities();
+  renderDays();
+  saveCurrentItinerary();
+}
+
+function tagClass(type) {
+  return {food:'tag-food',sight:'tag-sight',hotel:'tag-hotel',transport:'tag-transport',activity:'tag-activity'}[type] || 'tag-sight';
+}
+function tagLabel(type) {
+  return {food:'Food',sight:'Sightseeing',hotel:'Hotel',transport:'Transport',activity:'Activity'}[type] || type;
+}
+
+function removeActivity(id) {
+  IT.activities = IT.activities.filter(a => a.id !== id);
+  IT.poolAssigned.delete(id);
+  renderActivities();
+  renderDays();
+  renderPool();
+  renderPins();
+  updateBudget();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ADD ACTIVITY MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+function openActModal() {
+  document.getElementById('am-day-label').textContent = IT.activeDayIdx + 1;
+  document.getElementById('am-title').value = '';
+  document.getElementById('am-notes').value = '';
+  document.getElementById('am-cost').value = '';
+  document.getElementById('am-time').value = suggestNextTime();
+  document.getElementById('act-modal').classList.add('open');
+}
+function closeActModal() {
+  document.getElementById('act-modal').classList.remove('open');
+}
+
+function suggestNextTime() {
+  const day = IT.activeDayIdx + 1;
+  const acts = IT.activities.filter(a => a.day === day).sort((a,b) => a.time.localeCompare(b.time));
+  if (!acts.length) return '09:00';
+  const last = acts[acts.length-1].time;
+  const [h,m] = last.split(':').map(Number);
+  const next = h + 2;
+  return (next < 24 ? next : 20).toString().padStart(2,'0') + ':00';
+}
+
+function saveActivity() {
+  const title = document.getElementById('am-title').value.trim();
+  if (!title) { document.getElementById('am-title').focus(); return; }
+  const act = {
+    id: 'a_' + Date.now(),
+    day: IT.activeDayIdx + 1,
+    time: document.getElementById('am-time').value || '10:00',
+    type: document.getElementById('am-type').value,
+    title,
+    desc: document.getElementById('am-notes').value.trim(),
+    cost: parseInt(document.getElementById('am-cost').value.replace(/[^0-9]/g,'')) || 0,
+  };
+  IT.activities.push(act);
+  closeActModal();
+  renderActivities();
+  renderDays();
+  renderPool();
+  renderPins();
+  updateBudget();
+  saveCurrentItinerary();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// POOL (Col 3)
+// ══════════════════════════════════════════════════════════════════════════════
+let poolFilter = 'all';
+
+function setPoolFilter(el) {
+  document.querySelectorAll('.pool-filter').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  poolFilter = el.dataset.f;
+  renderPool();
+}
+
+function renderPool() {
+  const key = IT.dest.toLowerCase().split('/')[0].trim();
+  const extras = POOL_EXTRAS[key] || Object.values(POOL_EXTRAS).flat().slice(0, 8);
+  const filtered = poolFilter === 'all' ? extras : extras.filter(e => e.type === poolFilter);
+
+  const assignedTitles = new Set(IT.activities.map(a => a.title));
+  document.getElementById('pool-count').textContent = '(' + extras.length + ')';
+
+  const list = document.getElementById('pool-list');
+  list.innerHTML = '';
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(245,239,230,.2);font-size:11px">No activities in this category</div>';
+    return;
+  }
+  filtered.forEach(item => {
+    const isAssigned = assignedTitles.has(item.title);
+    const div = document.createElement('div');
+    div.className = 'pool-item' + (isAssigned ? ' assigned' : '');
+    div.innerHTML = `
+      <div class="pool-title">${item.title}</div>
+      <div class="pool-meta">
+        <span class="act-tag ${tagClass(item.type)}" style="font-size:8px;padding:1px 5px">${tagLabel(item.type)}</span>
+      </div>
+      <div class="pool-src">via ${item.src}</div>
+      ${isAssigned
+        ? '<div class="pool-assigned-badge">✓ added</div>'
+        : `<div class="pool-add-btn" onclick="addFromPool('${item.id}')">+</div>`}`;
+    list.appendChild(div);
+  });
+}
+
+function addFromPool(id) {
+  const key = IT.dest.toLowerCase().split('/')[0].trim();
+  const extras = POOL_EXTRAS[key] || Object.values(POOL_EXTRAS).flat().slice(0, 8);
+  const item = extras.find(e => e.id === id);
+  if (!item) return;
+  const act = {
+    id: 'pool_' + id,
+    day: IT.activeDayIdx + 1,
+    time: suggestNextTime(),
+    type: item.type,
+    title: item.title,
+    desc: item.desc,
+    cost: 0,
+  };
+  IT.activities.push(act);
+  IT.poolAssigned.add(id);
+  renderActivities();
+  renderDays();
+  renderPool();
+  renderPins();
+  updateBudget();
+  saveCurrentItinerary();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MAP (Col 4)
+// ══════════════════════════════════════════════════════════════════════════════
+function loadMap() {
+  const key = IT.dest.toLowerCase().split('/')[0].trim();
+  const url = MAP_URLS[key] || MAP_URLS.default;
+  document.getElementById('map-iframe').src = url;
+  document.getElementById('map-fs-iframe').src = url;
+  document.getElementById('map-fs-title').textContent = '📍 ' + IT.dest + ' — Trip Map';
+}
+
+function renderPins() {
+  const list = document.getElementById('map-pin-list');
+  const all = IT.activities.slice().sort((a,b) => a.day - b.day || a.time.localeCompare(b.time));
+  if (all.length === 0) {
+    list.innerHTML = '<div style="color:rgba(245,239,230,.2);font-size:10px;padding:4px 2px">No activities pinned yet</div>';
+    return;
+  }
+  list.innerHTML = '';
+  all.slice(0, 12).forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'map-pin';
+    div.innerHTML = `<div class="map-pin-dot dot-assigned"></div><span>D${a.day} · ${a.title}</span>`;
+    list.appendChild(div);
+  });
+  if (all.length > 12) {
+    const more = document.createElement('div');
+    more.style.cssText = 'font-size:9px;color:rgba(245,239,230,.2);padding:3px 2px';
+    more.textContent = '+ ' + (all.length - 12) + ' more';
+    list.appendChild(more);
+  }
+}
+
+function expandMap() {
+  document.getElementById('map-fullscreen').classList.add('open');
+}
+function closeMap() {
+  document.getElementById('map-fullscreen').classList.remove('open');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BUDGET BAR
+// ══════════════════════════════════════════════════════════════════════════════
+function updateBudget() {
+  const spent = IT.activities.reduce((s, a) => s + (a.cost || 0), 0);
+  const total = IT.budgetAmt || defaultBudget();
+  const pct = total > 0 ? Math.min(100, Math.round(spent / total * 100)) : 0;
+  document.getElementById('budget-used').textContent = '$' + spent.toLocaleString();
+  document.getElementById('budget-total').textContent = '/ $' + total.toLocaleString();
+  document.getElementById('budget-fill').style.width = pct + '%';
+  document.getElementById('budget-fill').style.background =
+    pct > 90 ? 'linear-gradient(90deg,#c9a96e,#e05050)' :
+    pct > 70 ? 'linear-gradient(90deg,#7da882,#c9a96e)' :
+               'linear-gradient(90deg,#7da882,#6facd4)';
+}
+
+function defaultBudget() {
+  return {budget:1500, moderate:3000, premium:6000, luxury:12000}[IT.budgetTier] || 3000;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TOPBAR
+// ══════════════════════════════════════════════════════════════════════════════
+function updateTopbar() {
+  document.getElementById('topbar-dest').textContent = IT.dest;
+  const tier = {budget:'$ Budget',moderate:'$$ Moderate',premium:'$$$ Premium',luxury:'$$$$ Luxury'}[IT.budgetTier];
+  document.getElementById('topbar-sub').textContent =
+    IT.country + (IT.days ? ' · ' + IT.days + ' days' : '') + ' · ' + tier;
+  document.title = 'Travelite — ' + IT.dest;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORT (placeholder)
+// ══════════════════════════════════════════════════════════════════════════════
+function exportPDF() {
+  alert('PDF export coming soon — your itinerary will be formatted and downloaded.');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Check if arriving from bucket list with params
+  const params = new URLSearchParams(location.search);
+  const dest    = params.get('dest') || '';
+  const country = params.get('country') || '';
+  const budget  = params.get('budget') || 'moderate';
+
+  // Check for existing saved itinerary for this destination
+  if (dest) {
+    const saved = loadItineraries();
+    const key = dest.toLowerCase();
+    if (saved[key]) {
+      // Restore existing itinerary — skip popup
+      IT = saved[key];
+      IT.poolAssigned = new Set(IT.poolAssigned || []);
+      document.getElementById('setup-overlay').classList.add('hidden');
+      document.getElementById('builder').classList.remove('hidden');
+      updateTopbar();
+      renderDays();
+      renderActivities();
+      renderPool();
+      renderPins();
+      updateBudget();
+      loadMap();
+      return;
+    }
+  }
+
+  // No existing — show setup popup
+  initSetup(dest, country, budget);
+});
+</script>
+</body>
+</html>
