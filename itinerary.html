@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; img-src * data:; connect-src *">
+<title>Travelite — Itinerary</title>
+<meta name="description" content="Travelite — Itinerary Planner"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="travelite.css"/>
+</head>
+<body class="page-itinerary">
+
+<div id="g-topbar">
+  <a href="index.html" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:19px;color:var(--gold-light);letter-spacing:.06em;opacity:.9;white-space:nowrap;margin-right:8px;text-decoration:none">Travelite</a>
+  <a href="index.html" class="gtab">🌍 Discovery</a>
+  <a href="bucketlist.html" class="gtab">⭐ Bucket List</a>
+  <a href="itinerary.html" class="gtab on">🗺 Itinerary</a>
+
+  <div style="width:1px;height:26px;background:rgba(201,169,110,.15);margin:0 8px"></div>
+
+  <div style="display:flex;flex:1;align-items:center;gap:12px">
+    <div id="g-it-dest" style="font-family:'Cormorant Garamond',Georgia,serif;
+      font-size:18px;font-weight:400;color:var(--gold-light)"></div>
+    <div id="g-it-sub" style="font-size:10px;color:rgba(245,239,230,.3);letter-spacing:.04em"></div>
+    <div style="flex:1"></div>
+    <a href="bucketlist.html"
+      style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;
+      letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:5px;
+      border:1px solid rgba(245,239,230,.12);background:transparent;
+      color:rgba(245,239,230,.4);cursor:pointer;font-family:var(--font-ui);text-decoration:none">← Bucket List</a>
+    <button style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;
+      letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:5px;
+      border:1px solid rgba(201,169,110,.3);background:rgba(201,169,110,.12);
+      color:var(--gold);cursor:pointer;font-family:var(--font-ui)">Book Flights ✈</button>
+  </div>
+</div>
+
+<div id="page-body">
+<div id="ito">
+  <div id="itb">
+    <button class="ibk" onclick="switchTab('bucketlist')">&#8592; Back to Bucket List</button>
+    <div><div class="idn" id="idn">Kyoto</div><div class="ids" id="ids">Japan &#183; Draft Itinerary</div></div>
+    <div class="ita">
+      <button class="btn">Export PDF</button>
+      <button class="btn g">Share</button>
+      <button class="btn s">Book Flights</button>
+    </div>
+  </div>
+  <div id="itbd">
+    <div id="itsd">
+      <div class="sl">Trip Days</div>
+      <div class="idl">
+        <div class="idi active" onclick="blSelDay(this)">
+          <div class="idn2">1</div>
+          <div><div class="idl2">Arrival Day</div><div class="ids2">Check-in &#183; Gion stroll</div></div>
+        </div>
+        <div class="idi" onclick="blSelDay(this)">
+          <div class="idn2">2</div>
+          <div><div class="idl2">Temples &amp; Shrines</div><div class="ids2">Fushimi Inari &#183; Kinkaku-ji</div></div>
+        </div>
+        <div class="idi" onclick="blSelDay(this)">
+          <div class="idn2">3</div>
+          <div><div class="idl2">Arashiyama</div><div class="ids2">Bamboo grove &#183; Tenryu-ji</div></div>
+        </div>
+        <div class="idi" onclick="blSelDay(this)">
+          <div class="idn2">4</div>
+          <div><div class="idl2">Nishiki Market</div><div class="ids2">Food tour &#183; Tea ceremony</div></div>
+        </div>
+        <div class="idi" onclick="blSelDay(this)">
+          <div class="idn2">5</div>
+          <div><div class="idl2">Day Trip: Nara</div><div class="ids2">Deer park &#183; Todai-ji</div></div>
+        </div>
+      </div>
+      <button class="adb"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Add Day</button>
+    </div>
+    <div id="itm">
+      <div class="idh"><div class="idh-d">Day 1</div><div class="idh-t">Arrival Day</div><div class="idh-e">&#9998; edit</div></div>
+      <div class="iblk"><div class="itm2">14:00</div><div class="ibdy">
+        <div class="ibt">&#9992; Arrive KIX &#8212; Kansai International</div>
+        <div class="ibd">Haruka Express to Kyoto Station (~75 min). IC card recommended.</div>
+        <span class="ityp itr">Transport</span></div>
+      </div>
+      <div class="iblk"><div class="itm2">16:30</div><div class="ibdy">
+        <div class="ibt">&#127963; Check-in: Gion Ryokan</div>
+        <div class="ibd">Traditional inn in Gion. Tatami rooms, onsen, kaiseki dinner included.</div>
+        <span class="ityp ith">Hotel</span></div>
+      </div>
+      <div class="iblk"><div class="itm2">18:00</div><div class="ibdy">
+        <div class="ibt">&#127800; Evening stroll &#8212; Hanamikoji Street</div>
+        <div class="ibd">Walk the famous geisha district at dusk. Lanterns lit after 6pm.</div>
+        <span class="ityp itsi">Sightseeing</span></div>
+      </div>
+      <div class="iblk"><div class="itm2">20:00</div><div class="ibdy">
+        <div class="ibt">&#127836; Dinner: Nishiki Kaiseki</div>
+        <div class="ibd">Multi-course traditional dinner. Reserve in advance &#8212; ~&#165;12,000 pp.</div>
+        <span class="ityp itf">Food</span></div>
+      </div>
+      <button class="abl"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Add activity, meal, or note</button>
+    </div>
+  </div>
+</div>
+  </div>
+
+</div><!-- /tab-body -->
+</div>
+
+<script>
+// ── SHARED BUCKET LIST (localStorage) ─────────────────────────────────────────
+function loadBL() {
+  try { return JSON.parse(localStorage.getItem('travelite_bl') || '[]'); } catch(e) { return []; }
+}
+let blData = loadBL();
+
+/* ════ GLUE: TAB SWITCHING + CROSS-MODULE LINKING ════════════════════════════ */
+
+// ── TAB SYSTEM ────────────────────────────────────────────────────────────────
+const TABS = ['discovery','bucketlist','itinerary'];
+
+// Public entry point used by every nav button / link. Drives the URL hash;
+// the actual view render happens in applyTab() via the hashchange handler so
+// the browser Back/Forward buttons stay in sync.
+function switchTab(t) {
+  if (!TABS.includes(t)) t = 'discovery';
+  if (location.hash.slice(1) === t) { applyTab(t); }   // same page: just (re)render
+  else { location.hash = t; }                          // triggers hashchange -> applyTab
+}
+
+// Renders the chosen module and hides the others.
+function applyTab(t) {
+  if (!TABS.includes(t)) t = 'discovery';
+  TABS.forEach(id => {
+    const v = document.getElementById('v-' + id);
+    if (v) v.classList.toggle('on', id === t);
+  });
+  document.getElementById('gtab-d').classList.toggle('on', t === 'discovery');
+  document.getElementById('gtab-b').classList.toggle('on', t === 'bucketlist');
+  document.getElementById('gtab-i').classList.toggle('on', t === 'itinerary');
+
+  const de = document.getElementById('g-disc-extras');
+  const be = document.getElementById('g-bl-extras');
+  const ie = document.getElementById('g-it-extras');
+  if (de) de.style.display = t === 'discovery'  ? 'flex' : 'none';
+  if (be) be.style.display = t === 'bucketlist' ? 'flex' : 'none';
+  if (ie) ie.style.display = t === 'itinerary'  ? 'flex' : 'none';
+
+  document.title = t === 'discovery'  ? 'Travelite — Discovery'
+                 : t === 'bucketlist' ? 'Travelite — Bucket List'
+                 : 'Travelite — Itinerary';
+
+  if (t === 'discovery' && typeof redraw === 'function') setTimeout(redraw, 40);
+  if (t === 'bucketlist' && typeof render === 'function') { render(); refreshBLCount(); }
+}
+
+// Browser Back/Forward + manual hash edits route here.
+function routeFromHash() {
+  const t = location.hash.slice(1);
+  applyTab(TABS.includes(t) ? t : 'discovery');
+}
+window.addEventListener('hashchange', routeFromHash);
+
+function refreshBLCount() {
+  const el = document.getElementById('g-bl-count');
+  if (el) el.textContent = BL_SAVED.size + ' destination' + (BL_SAVED.size !== 1 ? 's' : '') + ' saved';
+}
+
+// ── SHARED BUCKET LIST SET ─────────────────────────────────────────────────────
+const BL_SAVED = new Set(); // tracks which destination IDs are saved
+
+function toggleAddBL() {
+  if (!selD) return;
+  const id = selD.id;
+  const btn = document.getElementById('btn-add-bl');
+  if (BL_SAVED.has(id)) {
+    BL_SAVED.delete(id);
+    btn.textContent = '☆ Add to Bucket List';
+    btn.classList.remove('saved');
+    // Remove from BL data array
+    const idx = D_BL.findIndex(x => x.id === id);
+    if (idx >= 0) D_BL.splice(idx, 1);
+  } else {
+    BL_SAVED.add(id);
+    btn.textContent = '★ Saved to Bucket List';
+    btn.classList.add('saved');
+    // Add entry to BL data if not already present
+    if (!D_BL.find(x => x.id === id)) {
+      const src = D.find(x => x.id === id);
+      if (src) {
+        const tiers = { 1: {b:'budget',  l:'$ Budget'},
+                        2: {b:'moderate',l:'$$ Moderate'},
+                        3: {b:'premium', l:'$$$ Premium'},
+                        4: {b:'luxury',  l:'$$$$ Luxury'} };
+        const t = tiers[src.costTier] || tiers[2];
+        D_BL.push({
+          id:       src.id,
+          name:     src.name,
+          country:  src.country,
+          cont:     src.continent || src.cont || 'Unknown',
+          flag:     '🌍',
+          priority: 'someday',
+          rank:     D_BL.length + 1,
+          season:   ['spring','summer'],
+          sched:    null,
+          yr:       'unscheduled',
+          type:     'solo',
+          budget:   t.b,
+          bl:       t.l,
+          acts:     (src.activities || []).slice(0, 3),
+          note:     '',
+          score:    Math.round(scoreD(src) * 100)
+        });
+      }
+    }
+  }
+  refreshBLCount();
+  if (typeof render === 'function') render();
+  // If the discovery Bucket List filter is on, refresh map + note count.
+  if (F.bucketOnly) {
+    const note=document.getElementById('bucket-note');
+    if(note){const c=BL_SAVED.size;note.innerHTML=c>0?('\u2726 Showing only your '+c+' saved destination'+(c!==1?'s':'')+'.'):'\u2726 No saved destinations yet \u2014 add some from any destination card.';}
+    if (typeof redraw === 'function') redraw();
+  }
+}
+
+function gotoItinerary() {
+  if (!selD) return;
+  loadItinDest(selD.name, selD.country, null);
+  switchTab('itinerary');
+}
+
+// Patch showCard to update BL button state
+const _origShowCard = showCard;
+showCard = function(d) {
+  _origShowCard(d);
+  const btn = document.getElementById('btn-add-bl');
+  if (btn) {
+    if (BL_SAVED.has(d.id)) {
+      btn.textContent = '★ Saved to Bucket List';
+      btn.classList.add('saved');
+    } else {
+      btn.textContent = '☆ Add to Bucket List';
+      btn.classList.remove('saved');
+    }
+  }
+};
+
+// Patch BL's openI to switch to itinerary tab instead of showing overlay
+function openI(id) {
+  const d = D_BL.find(x => x.id === id) || { name: 'Destination', country: '', sched: null };
+  loadItinDest(d.name, d.country, d.sched);
+  switchTab('itinerary');
+}
+
+// ── ITINERARY ENGINE ──────────────────────────────────────────────────────────
+function loadItinDest(name, country, sched) {
+  const lbl = document.getElementById('g-it-dest');
+  const sub = document.getElementById('g-it-sub');
+  const idn = document.getElementById('idn');
+  const ids_ = document.getElementById('ids');
+  if (lbl) lbl.textContent = name || 'Destination';
+  if (sub) sub.textContent = (country || '') + (sched ? ' · ' + sched : '') + ' · Draft Itinerary';
+  if (idn) idn.textContent = name || 'Destination';
+  if (ids_) ids_.textContent = (country || '') + ' · Draft Itinerary';
+}
+
+// Initialise on load
+document.addEventListener('DOMContentLoaded', () => {
+  refreshBLCount();
+  // Route from the URL hash so Discovery/Bucket List/Itinerary are bookmarkable
+  // and the browser Back/Forward buttons work. Defaults to Discovery.
+  if (!TABS.includes(location.hash.slice(1))) {
+    // set without adding an extra history entry on first load
+    history.replaceState(null, '', '#discovery');
+  }
+  routeFromHash();
+});
+
+</script>
+
+</script>
+</body>
+</html>
