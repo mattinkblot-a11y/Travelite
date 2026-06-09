@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; img-src * data:; connect-src *">
+<title>Travelite — Bucket List</title>
+<meta name="description" content="Travelite — My Bucket List"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"/>
+<style>
+/* ════ APP CSS (Discovery engine) ════════════════════════════════════════════ */
+
+/* ── DESIGN TOKENS ─────────────────────────────────────────────────────────── */
+:root {
+  --navy:        #04111f;
+  --navy-mid:    #071828;
+  --navy-light:  #0c2236;
+  --navy-glass:  rgba(4,17,31,.82);
+  --gold:        #c9a96e;
+  --gold-light:  #e2c98a;
+  --gold-dim:    rgba(201,169,110,.18);
+  --gold-faint:  rgba(201,169,110,.08);
+  --ivory:       #f5efe6;
+  --ivory-dim:   rgba(245,239,230,.65);
+  --ivory-faint: rgba(245,239,230,.28);
+  --ivory-ghost: rgba(245,239,230,.10);
+  --sage:        #7da882;
+  --sage-dim:    rgba(125,168,130,.22);
+  --blue-accent: #6facd4;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-ui:      'DM Sans', system-ui, sans-serif;
+  --transition:   all 0.22s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── RESET & BASE ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: flex;
+  height: 100vh;
+  background: var(--navy);
+  font-family: var(--font-ui);
+  color: var(--ivory);
+  overflow: hidden;
+  /* Cinematic radial spotlight */
+  background: radial-gradient(ellipse 140% 120% at 50% 40%, #071e36 0%, #04111f 45%, #020c16 100%);
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201,169,110,.18); border-radius: 2px; }
+
+/* ── SIDEBAR ───────────────────────────────────────────────────────────────── */
+#sidebar {
+  width: 284px;
+  min-width: 284px;
+  background: linear-gradient(180deg, rgba(4,17,31,.97) 0%, rgba(5,20,36,.98) 100%);
+  border-right: 1px solid rgba(201,169,110,.12);
+  overflow-y: auto;
+  padding: 20px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  position: relative;
+}
+
+/* Frosted grain texture on sidebar */
+#sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+#sidebar > * { position: relative; z-index: 1; }
+
+/* ── MAP AREA ──────────────────────────────────────────────────────────────── */
+#map-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── TOPBAR ────────────────────────────────────────────────────────────────── */
+#topbar {
+  height: 52px;
+  background: linear-gradient(90deg, rgba(4,17,31,.98) 0%, rgba(5,20,36,.96) 100%);
+  border-bottom: 1px solid rgba(201,169,110,.10);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 5;
+  backdrop-filter: blur(12px);
+}
+
+/* ── MAP WRAP ──────────────────────────────────────────────────────────────── */
+#map-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='2' fill='%23c9a96e'/%3E%3Cline x1='12' y1='2' x2='12' y2='7' stroke='%23c9a96e' stroke-width='1.5'/%3E%3Cline x1='12' y1='17' x2='12' y2='22' stroke='%23c9a96e' stroke-width='1.5'/%3E%3Cline x1='2' y1='12' x2='7' y2='12' stroke='%23c9a96e' stroke-width='1.5'/%3E%3Cline x1='17' y1='12' x2='22' y2='12' stroke='%23c9a96e' stroke-width='1.5'/%3E%3C/svg%3E") 12 12, crosshair;
+}
+
+/* Map vignette overlay */
+#map-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 85% at 50% 50%, transparent 55%, rgba(4,17,31,.55) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+svg#worldmap {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #060d1a;
+}
+#gc path { transition: fill .35s, opacity .35s; }
+#mapbg path { fill: #182d42; }
+#mapbg path.borders { fill: none; stroke: rgba(100,150,190,0.3); stroke-width: 0.5px; }
+
+/* ── SECTION COMPONENTS ────────────────────────────────────────────────────── */
+.sec {
+  border-bottom: 1px solid rgba(201,169,110,.09);
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+}
+.sec-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.sec-hdr:hover .sec-label { color: var(--ivory-dim); }
+.sec-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(245,239,230,.32);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-family: var(--font-ui);
+  transition: color .18s;
+}
+.sec-body { margin-top: 10px; display: none; }
+.sec-body.open { display: block; }
+
+/* ── TOGGLE SWITCH ─────────────────────────────────────────────────────────── */
+.sw {
+  width: 34px;
+  height: 19px;
+  border-radius: 10px;
+  background: rgba(245,239,230,.10);
+  border: 1px solid rgba(245,239,230,.12);
+  position: relative;
+  transition: background .22s, border-color .22s;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.sw.on {
+  background: linear-gradient(90deg, #a07840, #c9a96e);
+  border-color: #c9a96e;
+}
+.sw::after {
+  content: '';
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left .22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+.sw.on::after { left: 17px; }
+
+/* ── PILLS ─────────────────────────────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-family: var(--font-ui);
+  border: 1px solid rgba(245,239,230,.11);
+  background: rgba(245,239,230,.04);
+  color: rgba(245,239,230,.38);
+  transition: var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: .02em;
+  position: relative;
+  overflow: hidden;
+}
+/* Hover shimmer */
+.pill::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201,169,110,.15), transparent);
+  transition: left .4s;
+}
+.pill:hover::before { left: 150%; }
+.pill:hover {
+  border-color: rgba(201,169,110,.3);
+  color: rgba(245,239,230,.6);
+  background: rgba(201,169,110,.07);
+}
+.pill.on {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold-light);
+}
+.pill.on .pd { background: var(--gold); }
+.pill.sm { padding: 3px 8px; font-size: 10px; }
+.pd {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(245,239,230,.18);
+  flex-shrink: 0;
+}
+
+/* ── SLIDER ────────────────────────────────────────────────────────────────── */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(245,239,230,.12);
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e2c98a 0%, #c9a96e 100%);
+  box-shadow: 0 0 8px rgba(201,169,110,.5), 0 2px 4px rgba(0,0,0,.4);
+  border: 1.5px solid rgba(255,255,255,.2);
+  transition: box-shadow .18s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 14px rgba(201,169,110,.7), 0 2px 6px rgba(0,0,0,.5);
+}
+
+/* ── TEXT INPUT ────────────────────────────────────────────────────────────── */
+input[type=text] {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(245,239,230,.18);
+  border-radius: 0;
+  color: var(--ivory);
+  padding: 7px 0;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  outline: none;
+  width: 100%;
+  transition: border-color .18s;
+  letter-spacing: .02em;
+}
+input[type=text]:focus { border-bottom-color: var(--gold); }
+input[type=text]::placeholder { color: rgba(245,239,230,.25); }
+
+button { cursor: pointer; font-family: var(--font-ui); }
+
+/* ── SLIDER ROW ────────────────────────────────────────────────────────────── */
+.sr { margin-bottom: 10px; }
+.sr label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: rgba(245,239,230,.38);
+  margin-bottom: 6px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.sr label span {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.sub {
+  font-size: 10px;
+  color: rgba(245,239,230,.28);
+  margin-bottom: 7px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* ── TOOLTIP ───────────────────────────────────────────────────────────────── */
+#tooltip {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(4,17,31,.97) 0%, rgba(7,24,44,.97) 100%);
+  border: 1px solid rgba(201,169,110,.28);
+  border-radius: 8px;
+  padding: 12px 16px;
+  width: 220px;
+  pointer-events: none;
+  z-index: 50;
+  display: none;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6), inset 0 1px 0 rgba(201,169,110,.1);
+  backdrop-filter: blur(16px);
+}
+
+/* ── DESTINATION CARD ──────────────────────────────────────────────────────── */
+#destcard {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(4,17,31,.97) 0%, rgba(6,22,40,.97) 100%);
+  border: 1px solid rgba(201,169,110,.22);
+  border-radius: 12px;
+  padding: 22px 28px 18px;
+  max-width: 580px;
+  width: calc(100% - 32px);
+  backdrop-filter: blur(28px);
+  box-shadow: 0 28px 70px rgba(0,0,0,.75), 0 0 0 1px rgba(201,169,110,.06) inset;
+  z-index: 40;
+  display: none;
+}
+#destcard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,169,110,.4), transparent);
+}
+
+/* ── TOP MATCHES ───────────────────────────────────────────────────────────── */
+#topmatches {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: linear-gradient(160deg, rgba(4,17,31,.95) 0%, rgba(6,22,40,.95) 100%);
+  border: 1px solid rgba(201,169,110,.14);
+  border-radius: 10px;
+  padding: 14px 13px 10px;
+  width: 196px;
+  z-index: 30;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+  backdrop-filter: blur(16px);
+  max-height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+#tml {
+  overflow-y: auto;
+  flex: 1;
+}
+#topmatches::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 15%; right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,169,110,.35), transparent);
+}
+
+.tm {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(245,239,230,.05);
+  cursor: pointer;
+  transition: opacity .15s;
+  animation: tmFade .35s ease both;
+}
+.tm:hover { opacity: .85; }
+.tm:last-child { border-bottom: none; }
+
+@keyframes tmFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── AIRPORT DROPDOWN ──────────────────────────────────────────────────────── */
+#apdrop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #071828 0%, #04111f 100%);
+  border: 1px solid rgba(201,169,110,.18);
+  border-radius: 8px;
+  margin-top: 4px;
+  z-index: 100;
+  display: none;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
+}
+.api {
+  padding: 8px 13px;
+  cursor: pointer;
+  font-size: 11.5px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(245,239,230,.05);
+  transition: background .15s;
+  letter-spacing: .01em;
+}
+.api:hover { background: var(--gold-faint); }
+.api:last-child { border-bottom: none; }
+
+/* ── STAT GRID ─────────────────────────────────────────────────────────────── */
+.stg { display: grid; gap: 8px; margin-bottom: 14px; }
+.st {
+  background: rgba(245,239,230,.04);
+  border: 1px solid rgba(245,239,230,.07);
+  border-radius: 7px;
+  padding: 10px 8px;
+  text-align: center;
+  transition: background .2s;
+}
+.st:hover { background: rgba(201,169,110,.06); }
+.st .ic { font-size: 13px; margin-bottom: 4px; }
+.st .vl { font-size: 12px; font-weight: 600; color: var(--ivory); letter-spacing: .01em; }
+.st .lb {
+  font-size: 8px;
+  color: rgba(245,239,230,.3);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── DISPLAY FONT LOGO ─────────────────────────────────────────────────────── */
+.logo { font-family: var(--font-display); font-weight: 600; }
+
+/* ── WEEK BOX ──────────────────────────────────────────────────────────────── */
+.week-box {
+  background: rgba(201,169,110,.06);
+  border: 1px solid rgba(201,169,110,.15);
+  border-radius: 8px;
+  padding: 12px 13px;
+  margin-bottom: 14px;
+}
+
+/* ── FILTER BADGE ──────────────────────────────────────────────────────────── */
+#fbadge {
+  display: none;
+  margin-bottom: 14px;
+  background: rgba(201,169,110,.06);
+  border: 1px solid rgba(201,169,110,.20);
+  border-radius: 7px;
+  padding: 7px 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── TOPBAR SIDEBAR TOGGLE ─────────────────────────────────────────────────── */
+#sb-toggle {
+  background: rgba(245,239,230,.06);
+  border: 1px solid rgba(245,239,230,.10);
+  border-radius: 5px;
+  color: rgba(245,239,230,.55);
+  padding: 5px 10px;
+  font-size: 12px;
+  transition: var(--transition);
+  letter-spacing: .05em;
+}
+#sb-toggle:hover {
+  background: var(--gold-dim);
+  border-color: rgba(201,169,110,.35);
+  color: var(--gold-light);
+}
+
+/* ── WEATHER SUB-BOX ───────────────────────────────────────────────────────── */
+.wx-box {
+  background: rgba(245,239,230,.025);
+  border-radius: 7px;
+  padding: 10px;
+  margin-bottom: 7px;
+  border: 1px solid transparent;
+  transition: border-color .2s;
+}
+
+/* ── SCORE BAR (animated fill on card render) ─────────────────────────────── */
+@keyframes scoreFill {
+  from { width: 0; opacity: 0; }
+  to   { opacity: 1; }
+}
+.score-bar-inner {
+  animation: scoreFill .6s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* ── GOLD DIVIDER ──────────────────────────────────────────────────────────── */
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,169,110,.4), transparent);
+  margin: 10px 0 12px;
+}
+
+/* ── CLOSE BTN ─────────────────────────────────────────────────────────────── */
+.close-btn {
+  background: rgba(245,239,230,.06);
+  border: 1px solid rgba(245,239,230,.10);
+  border-radius: 5px;
+  color: rgba(245,239,230,.38);
+  padding: 4px 10px;
+  font-size: 11px;
+  transition: var(--transition);
+}
+.close-btn:hover {
+  background: rgba(201,169,110,.12);
+  border-color: rgba(201,169,110,.3);
+  color: var(--gold);
+}
+
+/* ── 1000 PLACES BOX ───────────────────────────────────────────────────────── */
+.kplaces-box {
+  border: 1px solid rgba(201,169,110,.22);
+  background: rgba(201,169,110,.04);
+  border-radius: 8px;
+  padding: 11px 13px;
+  margin-bottom: 14px;
+}
+
+
+/* ════ BUCKET LIST CSS ════════════════════════════════════════════════════════ */
+
+
+:root{
+  --navy:#04111f;--navy-mid:#071828;
+  --gold:#c9a96e;--gold-light:#e2c98a;
+  --gold-dim:rgba(201,169,110,.18);--gold-faint:rgba(201,169,110,.08);
+  --ivory:#f5efe6;--ivory-dim:rgba(245,239,230,.65);
+  --ivory-faint:rgba(245,239,230,.28);--ivory-ghost:rgba(245,239,230,.10);
+  --sage:#7da882;--blue:#6facd4;
+  --fd:'Cormorant Garamond',Georgia,serif;
+  --fu:'DM Sans',system-ui,sans-serif;
+  --tr:all 0.22s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{display:flex;flex-direction:column;height:100vh;
+  background:radial-gradient(ellipse 140% 120% at 50% 40%,#071e36 0%,#04111f 45%,#020c16 100%);
+  font-family:var(--fu);color:var(--ivory);}
+::-webkit-scrollbar{width:2px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(201,169,110,.18);border-radius:2px;}
+
+/* TOPBAR */
+#topbar{height:52px;background:linear-gradient(90deg,rgba(4,17,31,.98),rgba(5,20,36,.96));
+  border-bottom:1px solid rgba(201,169,110,.10);display:flex;align-items:center;
+  padding:0 22px;gap:18px;flex-shrink:0;z-index:20;position:relative;}
+#topbar::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,169,110,.2),transparent);}
+.logo{font-family:var(--fd);font-size:22px;font-weight:500;letter-spacing:.04em;
+  color:var(--gold-light);text-decoration:none;white-space:nowrap;}
+.logo span{color:var(--ivory-faint);font-style:italic;font-weight:300;font-size:18px;}
+.nav-tabs{display:flex;align-items:center;gap:2px;margin-left:8px;}
+.nav-tab{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;
+  color:rgba(245,239,230,.32);padding:6px 14px;border-radius:4px;cursor:pointer;
+  transition:var(--tr);border:1px solid transparent;}
+.nav-tab:hover{color:var(--ivory-dim);background:var(--ivory-ghost);}
+.nav-tab.active{color:var(--gold);border-color:rgba(201,169,110,.22);background:var(--gold-faint);}
+.tbr{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.tbb{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;color:rgba(245,239,230,.45);
+  padding:6px 12px;border-radius:4px;border:1px solid rgba(245,239,230,.1);
+  background:transparent;cursor:pointer;transition:var(--tr);font-family:var(--fu);}
+.tbb:hover{color:var(--gold);border-color:rgba(201,169,110,.3);background:var(--gold-faint);}
+.tbb.pri{color:#04111f;background:linear-gradient(135deg,#c9a96e,#a07840);
+  border-color:transparent;font-weight:600;}
+.tbb.pri:hover{background:linear-gradient(135deg,#e2c98a,#c9a96e);}
+
+/* MAIN */
+#main{display:flex;flex:1;overflow:hidden;}
+
+/* LEFT PANEL */
+#lp{width:252px;min-width:252px;
+  background:linear-gradient(180deg,rgba(4,17,31,.97) 0%,rgba(5,20,36,.98) 100%);
+  border-right:1px solid rgba(201,169,110,.12);display:flex;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;position:relative;z-index:5;}
+#lp::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");}
+#lp>*{position:relative;z-index:1;}
+.lph{padding:16px 16px 12px;border-bottom:1px solid rgba(201,169,110,.09);}
+.lpt{font-family:var(--fd);font-size:15px;font-weight:500;color:var(--gold-light);
+  letter-spacing:.04em;margin-bottom:2px;}
+.lps{font-size:10px;color:rgba(245,239,230,.28);letter-spacing:.08em;text-transform:uppercase;}
+.srow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;
+  background:rgba(201,169,110,.08);border-bottom:1px solid rgba(201,169,110,.09);}
+.scl{background:rgba(4,17,31,.9);padding:10px 12px;text-align:center;}
+.scn{font-family:var(--fd);font-size:22px;font-weight:300;color:var(--gold-light);line-height:1;}
+.scl2{font-size:9px;color:rgba(245,239,230,.3);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.lpsec{padding:12px 16px 10px;border-bottom:1px solid rgba(201,169,110,.09);}
+.sl{font-size:10px;font-weight:600;color:rgba(245,239,230,.32);
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+
+/* Timeline */
+.tli{display:flex;align-items:center;gap:8px;padding:5px 6px;margin:0 -6px;
+  cursor:pointer;transition:var(--tr);border-radius:3px;}
+.tli:hover{background:rgba(245,239,230,.03);}
+.tli.active{background:rgba(201,169,110,.06);}
+.tyd{width:6px;height:6px;border-radius:50%;background:rgba(245,239,230,.12);
+  border:1px solid rgba(245,239,230,.2);flex-shrink:0;transition:var(--tr);}
+.tli.has .tyd,.tli.active .tyd{background:var(--gold);border-color:var(--gold);
+  box-shadow:0 0 6px rgba(201,169,110,.5);}
+.tyl{font-size:11px;color:rgba(245,239,230,.38);flex:1;}
+.tli.has .tyl,.tli.active .tyl{color:var(--ivory-dim);}
+.tyc{font-size:10px;color:rgba(245,239,230,.28);background:rgba(245,239,230,.06);
+  border-radius:10px;padding:1px 7px;}
+.tli.has .tyc,.tli.active .tyc{background:var(--gold-dim);color:var(--gold);}
+
+/* Pill filters */
+.pills{display:flex;flex-wrap:wrap;gap:5px;}
+.fp{font-size:10px;padding:3px 9px;border-radius:3px;
+  border:1px solid rgba(245,239,230,.1);background:rgba(245,239,230,.04);
+  color:rgba(245,239,230,.38);cursor:pointer;transition:var(--tr);
+  letter-spacing:.02em;user-select:none;}
+.fp:hover{border-color:rgba(201,169,110,.3);color:rgba(245,239,230,.6);
+  background:rgba(201,169,110,.07);}
+.fp.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light);}
+
+/* Sort */
+.sr2{display:flex;align-items:center;gap:8px;}
+.sr2 select{flex:1;background:rgba(245,239,230,.04);border:1px solid rgba(245,239,230,.1);
+  color:rgba(245,239,230,.55);font-size:10.5px;font-family:var(--fu);
+  padding:5px 8px;border-radius:3px;outline:none;cursor:pointer;}
+.sr2 select option{background:#071828;}
+.sdir{width:26px;height:26px;border-radius:3px;border:1px solid rgba(245,239,230,.1);
+  background:rgba(245,239,230,.04);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:var(--tr);color:rgba(245,239,230,.4);font-size:13px;user-select:none;}
+.sdir:hover{border-color:rgba(201,169,110,.3);color:var(--gold);}
+
+/* Custom cols */
+.ccli{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(245,239,230,.45);margin-bottom:5px;}
+.acb{display:flex;align-items:center;gap:6px;font-size:10.5px;color:rgba(245,239,230,.3);
+  cursor:pointer;transition:var(--tr);padding:4px 0;background:none;border:none;font-family:var(--fu);}
+.acb:hover{color:var(--gold);}
+
+/* Calendar strip */
+#cals{padding:10px 16px 14px;border-top:1px solid rgba(201,169,110,.09);}
+.cst{font-size:10px;color:rgba(245,239,230,.28);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.mg{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
+.mc{aspect-ratio:1;border-radius:3px;border:1px solid rgba(245,239,230,.07);
+  background:rgba(245,239,230,.03);display:flex;align-items:center;justify-content:center;
+  font-size:8.5px;color:rgba(245,239,230,.25);cursor:pointer;transition:var(--tr);
+  letter-spacing:.02em;text-transform:uppercase;}
+.mc:hover{border-color:rgba(201,169,110,.3);color:var(--ivory-dim);}
+.mc.has{background:var(--gold-dim);border-color:rgba(201,169,110,.35);color:var(--gold);}
+.mc.sch{background:rgba(125,168,130,.18);border-color:rgba(125,168,130,.4);color:var(--sage);}
+
+/* CONTENT */
+#content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* SHARED GRID — header + every data row use identical column template */
+.grow{
+  display:grid;
+  grid-template-columns: 30px minmax(150px,1.6fr) 88px 90px 108px 110px 88px 98px minmax(100px,1fr) 60px;
+  align-items:center;
+  min-width:940px;
+}
+
+/* TABLE HEAD */
+#thead{background:rgba(4,17,31,.7);border-bottom:1px solid rgba(201,169,110,.12);
+  flex-shrink:0;padding:0 16px;overflow-x:auto;backdrop-filter:blur(10px);}
+.thr{height:36px;}
+.thc{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(245,239,230,.28);padding:0 5px;cursor:pointer;user-select:none;
+  display:flex;align-items:center;gap:4px;transition:color .15s;white-space:nowrap;}
+.thc:hover{color:rgba(245,239,230,.5);}
+.thc.on{color:var(--gold);}
+.thc.ns{cursor:default;}.thc.ns:hover{color:rgba(245,239,230,.28);}
+
+/* TABLE BODY */
+#tbody{flex:1;overflow-y:auto;overflow-x:auto;padding:6px 16px 24px;}
+
+/* DEST ROW */
+.dr{min-height:46px;border-bottom:1px solid rgba(245,239,230,.05);cursor:pointer;
+  transition:background .15s;border-radius:4px;min-width:940px;}
+.dr:hover{background:rgba(201,169,110,.04);}
+.dr.schr{background:rgba(125,168,130,.035);border-left:2px solid rgba(125,168,130,.4);}
+.dr.schr:hover{background:rgba(125,168,130,.07);}
+.dr.t10r{border-left:2px solid rgba(201,169,110,.4);}
+.crank{padding:0 3px;display:flex;align-items:center;justify-content:center;}
+.rb{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:9px;font-weight:700;}
+.rt10{background:rgba(201,169,110,.18);color:var(--gold);border:1px solid rgba(201,169,110,.35);}
+.rt20{background:rgba(111,172,212,.12);color:var(--blue);border:1px solid rgba(111,172,212,.25);}
+.rt50{background:rgba(245,239,230,.07);color:rgba(245,239,230,.4);border:1px solid rgba(245,239,230,.12);}
+.rsd{background:transparent;color:rgba(245,239,230,.2);border:1px solid rgba(245,239,230,.08);}
+.cname{display:flex;align-items:center;gap:9px;padding:0 5px;min-width:0;}
+.fl{width:20px;height:14px;border-radius:2px;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:14px;}
+.dn{font-size:13px;font-weight:500;color:var(--ivory-dim);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;transition:color .15s;}
+.dr:hover .dn{color:var(--ivory);}
+.dc{font-size:10px;color:rgba(245,239,230,.28);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cell{padding:0 5px;}
+.cellf{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:0 5px;}
+.pb{display:inline-flex;align-items:center;font-size:10px;font-weight:600;
+  letter-spacing:.04em;padding:3px 7px;border-radius:3px;white-space:nowrap;}
+.pt10{background:rgba(201,169,110,.14);color:var(--gold);border:1px solid rgba(201,169,110,.28);}
+.pt20{background:rgba(111,172,212,.10);color:var(--blue);border:1px solid rgba(111,172,212,.22);}
+.pt50{background:rgba(245,239,230,.06);color:rgba(245,239,230,.4);border:1px solid rgba(245,239,230,.1);}
+.psd{background:transparent;color:rgba(245,239,230,.2);border:1px solid rgba(245,239,230,.06);}
+.stag{font-size:9px;padding:2px 5px;border-radius:2px;background:rgba(245,239,230,.06);
+  border:1px solid rgba(245,239,230,.09);color:rgba(245,239,230,.38);white-space:nowrap;}
+.stag.spr{background:rgba(125,168,130,.12);border-color:rgba(125,168,130,.25);color:var(--sage);}
+.stag.sum{background:rgba(201,169,110,.1);border-color:rgba(201,169,110,.22);color:var(--gold);}
+.stag.aut{background:rgba(196,106,106,.1);border-color:rgba(196,106,106,.22);color:#e09090;}
+.stag.win{background:rgba(111,172,212,.1);border-color:rgba(111,172,212,.22);color:var(--blue);}
+.csc{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(245,239,230,.28);
+  padding:0 5px;white-space:nowrap;}
+.csc.set{color:var(--sage);}
+.at{font-size:9px;padding:2px 5px;border-radius:2px;white-space:nowrap;
+  background:rgba(111,172,212,.08);border:1px solid rgba(111,172,212,.15);color:rgba(111,172,212,.7);}
+.tt{font-size:9px;padding:2px 5px;border-radius:2px;white-space:nowrap;
+  background:rgba(125,168,130,.08);border:1px solid rgba(125,168,130,.18);color:var(--sage);}
+/* Budget tags */
+.btag{font-size:10px;letter-spacing:.03em;padding:2px 7px;border-radius:3px;white-space:nowrap;
+  border:1px solid rgba(245,239,230,.1);background:rgba(245,239,230,.04);color:rgba(245,239,230,.4);}
+.b1{background:rgba(125,168,130,.1);border-color:rgba(125,168,130,.25);color:var(--sage);}
+.b2{background:rgba(201,169,110,.09);border-color:rgba(201,169,110,.2);color:var(--gold);}
+.b3{background:rgba(111,172,212,.09);border-color:rgba(111,172,212,.2);color:var(--blue);}
+.b4{background:rgba(196,106,106,.09);border-color:rgba(196,106,106,.2);color:#e09090;}
+.inn{background:transparent;border:none;color:rgba(245,239,230,.28);font-size:11px;
+  font-family:var(--fu);font-style:italic;outline:none;width:100%;min-width:0;}
+.inn::placeholder{color:rgba(245,239,230,.15);}
+.inn:focus{color:rgba(245,239,230,.55);}
+.cact{display:flex;align-items:center;gap:5px;padding:0 5px;opacity:0;transition:opacity .15s;}
+.dr:hover .cact{opacity:1;}
+.ab{width:26px;height:26px;border-radius:4px;border:1px solid rgba(245,239,230,.1);
+  background:rgba(245,239,230,.04);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:var(--tr);color:rgba(245,239,230,.4);font-size:12px;flex-shrink:0;}
+.ab:hover{border-color:rgba(201,169,110,.35);color:var(--gold);background:var(--gold-faint);}
+.ab.pl:hover{border-color:rgba(125,168,130,.4);color:var(--sage);background:rgba(125,168,130,.08);}
+.sdiv{display:flex;align-items:center;gap:10px;padding:10px 5px 6px;margin-bottom:2px;}
+.sdl{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(245,239,230,.28);white-space:nowrap;}
+.sdl.sage{color:var(--sage);}
+.sdln{flex:1;height:1px;background:rgba(245,239,230,.06);}
+.sdln.sage{background:rgba(125,168,130,.2);}
+.sdc{font-size:9px;padding:1px 7px;border-radius:10px;
+  background:rgba(245,239,230,.06);color:rgba(245,239,230,.28);}
+.sdc.sage{background:rgba(125,168,130,.12);color:var(--sage);}
+
+/* ITINERARY OVERLAY */
+#ito{position:fixed;inset:0;background:rgba(2,12,22,.88);backdrop-filter:blur(18px);
+  z-index:100;display:none;flex-direction:column;}
+#ito.open{display:flex;}
+#itb{height:52px;background:linear-gradient(90deg,rgba(4,17,31,.99),rgba(6,22,40,.99));
+  border-bottom:1px solid rgba(201,169,110,.12);display:flex;align-items:center;
+  padding:0 22px;gap:14px;flex-shrink:0;}
+.ibk{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(245,239,230,.4);
+  cursor:pointer;transition:var(--tr);letter-spacing:.04em;border:1px solid rgba(245,239,230,.1);
+  padding:5px 12px;border-radius:4px;background:transparent;font-family:var(--fu);}
+.ibk:hover{color:var(--ivory-dim);border-color:rgba(245,239,230,.2);}
+.idn{font-family:var(--fd);font-size:20px;font-weight:400;color:var(--gold-light);}
+.ids{font-size:11px;color:rgba(245,239,230,.3);margin-top:1px;letter-spacing:.04em;}
+.ita{margin-left:auto;display:flex;gap:8px;}
+#itbd{flex:1;display:flex;overflow:hidden;}
+#itsd{width:280px;min-width:280px;border-right:1px solid rgba(201,169,110,.1);
+  background:rgba(4,17,31,.6);display:flex;flex-direction:column;overflow:hidden;
+  padding:16px;gap:10px;}
+.idl{display:flex;flex-direction:column;gap:6px;overflow-y:auto;flex:1;}
+.idi{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;
+  border:1px solid rgba(245,239,230,.07);background:rgba(245,239,230,.03);
+  cursor:pointer;transition:var(--tr);}
+.idi:hover{border-color:rgba(201,169,110,.25);background:var(--gold-faint);}
+.idi.active{border-color:rgba(201,169,110,.35);background:var(--gold-dim);}
+.idn2{font-family:var(--fd);font-size:18px;font-weight:300;color:var(--gold);min-width:28px;text-align:center;}
+.idl2{font-size:12px;color:var(--ivory-dim);}
+.ids2{font-size:10px;color:rgba(245,239,230,.28);}
+.adb{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;
+  border-radius:6px;border:1px dashed rgba(245,239,230,.12);background:transparent;
+  color:rgba(245,239,230,.28);cursor:pointer;transition:var(--tr);font-size:11px;font-family:var(--fu);}
+.adb:hover{border-color:rgba(201,169,110,.3);color:var(--gold);}
+#itm{flex:1;overflow-y:auto;padding:24px 28px;}
+.idh{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;}
+.idh-d{font-family:var(--fd);font-size:32px;font-weight:300;color:var(--gold-light);}
+.idh-t{font-size:14px;color:var(--ivory-dim);}
+.idh-e{color:rgba(245,239,230,.25);font-size:11px;cursor:pointer;transition:var(--tr);}
+.idh-e:hover{color:var(--gold);}
+.iblk{display:flex;gap:16px;margin-bottom:14px;padding:14px 16px;border-radius:8px;
+  border:1px solid rgba(245,239,230,.07);background:rgba(245,239,230,.02);transition:var(--tr);}
+.iblk:hover{border-color:rgba(201,169,110,.18);background:rgba(201,169,110,.025);}
+.itm2{font-size:11px;color:var(--gold);font-weight:500;min-width:48px;padding-top:2px;letter-spacing:.03em;}
+.ibdy{flex:1;min-width:0;}
+.ibt{font-size:13px;font-weight:500;color:var(--ivory-dim);margin-bottom:3px;}
+.ibd{font-size:11px;color:rgba(245,239,230,.35);line-height:1.5;}
+.ityp{font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;
+  border-radius:2px;margin-top:6px;display:inline-block;}
+.itf{background:rgba(201,169,110,.1);color:var(--gold);border:1px solid rgba(201,169,110,.2);}
+.itsi{background:rgba(111,172,212,.1);color:var(--blue);border:1px solid rgba(111,172,212,.2);}
+.ith{background:rgba(125,168,130,.1);color:var(--sage);border:1px solid rgba(125,168,130,.2);}
+.itr{background:rgba(245,239,230,.06);color:rgba(245,239,230,.4);border:1px solid rgba(245,239,230,.1);}
+.abl{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;
+  border:1px dashed rgba(245,239,230,.1);background:transparent;color:rgba(245,239,230,.28);
+  cursor:pointer;transition:var(--tr);font-size:11px;font-family:var(--fu);width:100%;}
+.abl:hover{border-color:rgba(201,169,110,.3);color:var(--gold);}
+
+/* DEST POPUP */
+#dpop{position:fixed;inset:0;background:rgba(2,12,22,.75);backdrop-filter:blur(10px);
+  z-index:200;display:none;align-items:center;justify-content:center;}
+#dpop.open{display:flex;}
+.pcard{background:linear-gradient(135deg,rgba(4,17,31,.98),rgba(6,22,40,.98));
+  border:1px solid rgba(201,169,110,.22);border-radius:14px;padding:28px 32px 24px;
+  max-width:560px;width:calc(100% - 40px);
+  box-shadow:0 32px 80px rgba(0,0,0,.8),0 0 0 1px rgba(201,169,110,.06) inset;
+  position:relative;animation:popIn .25s cubic-bezier(.4,0,.2,1);}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.pcard::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,169,110,.45),transparent);}
+.pcl{position:absolute;top:14px;right:16px;width:28px;height:28px;border-radius:50%;
+  border:1px solid rgba(245,239,230,.1);background:rgba(245,239,230,.04);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:var(--tr);color:rgba(245,239,230,.4);font-size:16px;}
+.pcl:hover{border-color:rgba(201,169,110,.3);color:var(--gold);}
+.pn{font-family:var(--fd);font-size:28px;font-weight:400;color:var(--ivory);
+  letter-spacing:.03em;margin-bottom:2px;}
+.pc{font-size:12px;color:rgba(245,239,230,.35);letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:18px;}
+.pst{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.ps{text-align:center;background:rgba(245,239,230,.03);border:1px solid rgba(245,239,230,.07);
+  border-radius:6px;padding:10px 8px;}
+.psn{font-family:var(--fd);font-size:20px;font-weight:300;color:var(--gold-light);}
+.psl{font-size:9px;color:rgba(245,239,230,.28);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.pa{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px;}
+.ata{font-size:10px;padding:3px 10px;border-radius:3px;background:rgba(245,239,230,.05);
+  border:1px solid rgba(245,239,230,.1);color:rgba(245,239,230,.45);letter-spacing:.04em;}
+.pnl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,239,230,.28);margin-bottom:6px;}
+.pnb{background:rgba(245,239,230,.03);border:1px solid rgba(245,239,230,.08);border-radius:6px;
+  padding:10px 12px;font-size:12px;color:rgba(245,239,230,.45);min-height:60px;
+  line-height:1.6;font-style:italic;margin-bottom:18px;}
+.pac{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ADD COLUMN MODAL */
+#acm{position:fixed;inset:0;background:rgba(2,12,22,.75);backdrop-filter:blur(10px);
+  z-index:300;display:none;align-items:center;justify-content:center;}
+#acm.open{display:flex;}
+.mcd{background:linear-gradient(135deg,rgba(4,17,31,.99),rgba(6,22,40,.99));
+  border:1px solid rgba(201,169,110,.2);border-radius:12px;padding:24px 28px;width:380px;
+  box-shadow:0 24px 60px rgba(0,0,0,.75);animation:popIn .22s ease;}
+.mt{font-family:var(--fd);font-size:20px;color:var(--gold-light);margin-bottom:4px;}
+.ms{font-size:11px;color:rgba(245,239,230,.3);margin-bottom:20px;letter-spacing:.04em;}
+.mf{margin-bottom:14px;}
+.ml{font-size:10px;color:rgba(245,239,230,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.mi{width:100%;background:rgba(245,239,230,.04);border:1px solid rgba(245,239,230,.12);
+  border-radius:5px;padding:8px 12px;font-size:12px;font-family:var(--fu);
+  color:var(--ivory);outline:none;transition:border-color .18s;}
+.mi:focus{border-color:rgba(201,169,110,.4);}
+.mcs{display:flex;flex-wrap:wrap;gap:5px;}
+.mc2{font-size:10.5px;padding:4px 10px;border-radius:3px;border:1px solid rgba(245,239,230,.1);
+  background:rgba(245,239,230,.04);color:rgba(245,239,230,.4);cursor:pointer;transition:var(--tr);}
+.mc2:hover{border-color:rgba(201,169,110,.3);color:var(--ivory-dim);}
+.mc2.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light);}
+.mft{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;
+  letter-spacing:.05em;text-transform:uppercase;padding:7px 16px;border-radius:5px;
+  border:1px solid rgba(245,239,230,.12);background:rgba(245,239,230,.04);
+  color:rgba(245,239,230,.5);cursor:pointer;transition:var(--tr);font-family:var(--fu);}
+.btn:hover{color:var(--ivory-dim);border-color:rgba(245,239,230,.22);}
+.btn.g{background:linear-gradient(135deg,rgba(201,169,110,.18),rgba(160,120,64,.18));
+  border-color:rgba(201,169,110,.35);color:var(--gold);}
+.btn.g:hover{border-color:var(--gold);color:var(--gold-light);}
+.btn.s{background:linear-gradient(135deg,#c9a96e,#a07840);border-color:transparent;
+  color:#04111f;font-weight:700;}
+.btn.s:hover{background:linear-gradient(135deg,#e2c98a,#c9a96e);}
+
+
+/* ════ SHARED MULTI-PAGE LAYOUT ═════════════════════════════════════════════ */
+html { height: 100%; }
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── GLOBAL TOPBAR ──────────────────────────────────────────────────────────── */
+#g-topbar {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, rgba(4,17,31,.99) 0%, rgba(5,20,36,.98) 100%);
+  border-bottom: 1px solid rgba(201,169,110,.12);
+  padding: 0 18px;
+  gap: 6px;
+  z-index: 100;
+}
+
+/* ── TAB BUTTONS ─────────────────────────────────────────────────────────────── */
+.gtab {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase;
+  color: rgba(245,239,230,.32); padding: 6px 14px; border-radius: 5px; cursor: pointer;
+  transition: all 0.2s; border: 1px solid transparent;
+  background: transparent; font-family: var(--font-ui); white-space: nowrap;
+}
+.gtab:hover { color: rgba(245,239,230,.65); background: rgba(245,239,230,.05); }
+.gtab.on {
+  color: var(--gold);
+  border-color: rgba(201,169,110,.25);
+  background: rgba(201,169,110,.09);
+}
+
+/* ── PAGE CONTENT AREA ───────────────────────────────────────────────────────── */
+#page-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+/* ── DISCOVERY PAGE LAYOUT ────────────────────────────────────────────────────── */
+body.page-discovery #page-body {
+  flex-direction: row !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 0 !important;
+}
+body.page-discovery #sidebar {
+  flex: 0 0 18% !important;
+  width: 18% !important;
+  max-width: 300px !important;
+  min-width: 200px !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+body.page-discovery #map-area {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+body.page-discovery #map-wrap {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+body.page-discovery #worldmap {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+/* Discovery old topbar — hidden (search/legend is in g-topbar) */
+#topbar { display: none !important; }
+
+/* ── BUCKET LIST PAGE LAYOUT ──────────────────────────────────────────────────── */
+body.page-bucketlist #page-body { flex-direction: column; }
+body.page-bucketlist #main { flex: 1; overflow: hidden; height: 100%; }
+
+/* ── ITINERARY PAGE LAYOUT ────────────────────────────────────────────────────── */
+body.page-itinerary #page-body { flex-direction: column; }
+
+/* ── ADD TO BL BUTTON SAVED STATE ───────────────────────────────────────────── */
+#btn-add-bl.saved {
+  border-color: var(--sage); background: rgba(125,168,130,.15); color: var(--sage);
+}
+
+/* ── ITINERARY TAB LAYOUT ───────────────────────────────────────────────────── */
+body.page-itinerary { background: var(--navy); }
+#ito {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  position: relative !important;
+  top: auto !important; left: auto !important; right: auto !important; bottom: auto !important;
+  z-index: auto !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+/* Itinerary topbar row */
+#itb {
+  height: 52px !important;
+  border-bottom: 1px solid rgba(201,169,110,.12) !important;
+  background: linear-gradient(90deg,rgba(4,17,31,.99),rgba(5,20,36,.98)) !important;
+  padding: 0 20px !important;
+  display: flex !important; align-items: center !important; gap: 14px !important;
+  flex-shrink: 0 !important;
+}
+/* The .ibk "back" button repurposed as "back to bucket list" */
+.ibk {
+  font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+  color: rgba(245,239,230,.35); padding: 6px 12px; border-radius: 5px; cursor: pointer;
+  border: 1px solid rgba(245,239,230,.10); background: transparent;
+  transition: all .2s; font-family: var(--font-ui);
+}
+.ibk:hover { color: var(--gold); border-color: rgba(201,169,110,.3); background: rgba(201,169,110,.08); }
+#itbd { flex: 1; display: flex; overflow: hidden; }
+
+
+/* ── NAV TABS AS LINKS ───────────────────────────────────────────────────────── */
+#g-topbar a.gtab {
+  text-decoration: none;
+}
+#g-topbar a {
+  text-decoration: none;
+}
+
+/* ── DISCOVERY: final cascade override (beats duplicate body rules above) ── */
+body.page-discovery {
+  display: flex !important;
+  flex-direction: column !important;  /* column so g-topbar stacks above page-body */
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* ── BUCKET LIST PAGE CRITICAL LAYOUT ── */
+html, body { height: 100% !important; margin: 0 !important; padding: 0 !important; }
+body {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background: radial-gradient(ellipse 140% 120% at 50% 40%, #071e36 0%, #04111f 45%, #020c16 100%) !important;
+  font-family: 'DM Sans', system-ui, sans-serif !important;
+  color: #f5efe6 !important;
+}
+#g-topbar {
+  display: flex !important;
+  align-items: center !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  flex-shrink: 0 !important;
+  background: linear-gradient(90deg, rgba(4,17,31,.99) 0%, rgba(5,20,36,.98) 100%) !important;
+  border-bottom: 1px solid rgba(201,169,110,.12) !important;
+  padding: 0 18px !important;
+  gap: 6px !important;
+  z-index: 100 !important;
+}
+#page-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+#main {
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+  display: flex !important;
+  min-height: 0 !important;
+}
+</style>
+</head>
+<body class="page-bucketlist">
+
+<div id="g-topbar">
+  <a href="index.html" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:19px;color:var(--gold-light);letter-spacing:.06em;opacity:.9;white-space:nowrap;margin-right:8px;text-decoration:none">Travelite</a>
+  <a href="index.html" class="gtab">🌍 Discovery</a>
+  <a href="bucketlist.html" class="gtab on">⭐ Bucket List</a>
+  <a href="itinerary.html" class="gtab">🗺 Itinerary</a>
+
+  <div style="width:1px;height:26px;background:rgba(201,169,110,.15);margin:0 8px"></div>
+
+  <div style="display:flex;flex:1;align-items:center;gap:10px">
+    <span id="g-bl-count" style="font-size:11px;color:rgba(245,239,230,.32);letter-spacing:.04em"></span>
+    <div style="flex:1"></div>
+    <a href="index.html"
+      style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;
+      letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:5px;
+      border:1px solid rgba(245,239,230,.12);background:transparent;
+      color:rgba(245,239,230,.4);cursor:pointer;font-family:var(--font-ui);text-decoration:none">🌍 Discover More</a>
+  </div>
+</div>
+
+<div id="page-body">
+  <div class="nav-tabs-row" style="display:flex;align-items:center;height:44px;flex-shrink:0;border-bottom:1px solid rgba(201,169,110,.10);padding:0 20px;gap:2px">
+    <div class="nav-tab active">Bucket List</div>
+    <div class="nav-tab">Community</div>
+    <div class="nav-tab">Bookings</div>
+    <div style="flex:1"></div>
+    <div class="tbr" style="margin:0">
+      <button class="tbb" onclick="openAC()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Add Column</button>
+      <button class="tbb pri"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Add Destination</button>
+    </div>
+  </div>
+  <div id="main" style="flex:1;overflow:hidden;display:flex;min-height:0">
+  <div id="lp">
+    <div class="lph">
+      <div class="lpt">My Bucket List</div>
+      <div class="lps" id="pcnt">12 destinations</div>
+    </div>
+    <div class="srow">
+      <div class="scl"><div class="scn" id="st0">12</div><div class="scl2">Saved</div></div>
+      <div class="scl"><div class="scn" id="st1">2</div><div class="scl2">Scheduled</div></div>
+      <div class="scl"><div class="scn" id="st2">3</div><div class="scl2">Planned</div></div>
+    </div>
+
+    <div class="lpsec">
+      <div class="sl">Trip Timeline</div>
+      <div class="tli has active" data-yr="all" onclick="setTL(this)">
+        <div class="tyd"></div><div class="tyl">All Trips</div><div class="tyc" id="tc0">12</div>
+      </div>
+      <div class="tli has" data-yr="2025" onclick="setTL(this)">
+        <div class="tyd"></div><div class="tyl">2025</div><div class="tyc" id="tc1">1</div>
+      </div>
+      <div class="tli has" data-yr="2026" onclick="setTL(this)">
+        <div class="tyd"></div><div class="tyl">2026</div><div class="tyc" id="tc2">1</div>
+      </div>
+      <div class="tli" data-yr="unscheduled" onclick="setTL(this)">
+        <div class="tyd"></div><div class="tyl">Unscheduled</div><div class="tyc" id="tc3">10</div>
+      </div>
+    </div>
+
+    <div class="lpsec">
+      <div class="sl">Priority</div>
+      <div class="pills" id="fp0">
+        <div class="fp on" data-v="all" onclick="setF('priority',this)">All</div>
+        <div class="fp" data-v="top10" onclick="setF('priority',this)">Top 10</div>
+        <div class="fp" data-v="top20" onclick="setF('priority',this)">Top 20</div>
+        <div class="fp" data-v="top50" onclick="setF('priority',this)">Top 50</div>
+        <div class="fp" data-v="someday" onclick="setF('priority',this)">Someday</div>
+      </div>
+    </div>
+
+    <div class="lpsec">
+      <div class="sl">Trip Type</div>
+      <div class="pills" id="fp1">
+        <div class="fp on" data-v="all" onclick="setF('triptype',this)">All</div>
+        <div class="fp" data-v="solo" onclick="setF('triptype',this)">Solo</div>
+        <div class="fp" data-v="friends" onclick="setF('triptype',this)">Friends</div>
+        <div class="fp" data-v="family" onclick="setF('triptype',this)">Family</div>
+        <div class="fp" data-v="couple" onclick="setF('triptype',this)">Couple</div>
+      </div>
+    </div>
+
+    <div class="lpsec">
+      <div class="sl">Season</div>
+      <div class="pills" id="fp2">
+        <div class="fp on" data-v="all" onclick="setF('season',this)">All</div>
+        <div class="fp" data-v="spring" onclick="setF('season',this)">Spring</div>
+        <div class="fp" data-v="summer" onclick="setF('season',this)">Summer</div>
+        <div class="fp" data-v="autumn" onclick="setF('season',this)">Autumn</div>
+        <div class="fp" data-v="winter" onclick="setF('season',this)">Winter</div>
+      </div>
+    </div>
+
+    <div class="lpsec">
+      <div class="sl">Budget</div>
+      <div class="pills" id="fp3">
+        <div class="fp on" data-v="all" onclick="setF('budget',this)">All</div>
+        <div class="fp" data-v="budget" onclick="setF('budget',this)">Budget</div>
+        <div class="fp" data-v="moderate" onclick="setF('budget',this)">Moderate</div>
+        <div class="fp" data-v="premium" onclick="setF('budget',this)">Premium</div>
+        <div class="fp" data-v="luxury" onclick="setF('budget',this)">Luxury</div>
+      </div>
+    </div>
+
+    <div class="lpsec">
+      <div class="sl">Sort By</div>
+      <div class="sr2">
+        <select id="ssel" onchange="onSC()">
+          <option value="priority">Priority</option>
+          <option value="scheduled">Scheduled Date</option>
+          <option value="name">Destination Name</option>
+          <option value="country">Country</option>
+          <option value="budget">Budget</option>
+          <option value="triptype">Trip Type</option>
+          <option value="season">Season</option>
+        </select>
+        <div class="sdir" id="sdir" onclick="toggleDir()">&#8595;</div>
+      </div>
+    </div>
+
+    <div class="lpsec">
+      <div class="sl">Custom Columns</div>
+      <div id="ccl">
+        <div class="ccli">
+          <span style="color:rgba(111,172,212,.6);font-size:9px">&#9679;</span> Trip Type
+          <span style="margin-left:auto;font-size:9px;color:rgba(245,239,230,.2);cursor:pointer" onclick="this.parentElement.remove()">&#10005;</span>
+        </div>
+      </div>
+      <button class="acb" onclick="openAC()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Add custom column</button>
+    </div>
+
+    <div id="cals">
+      <div class="cst">2026 at a Glance</div>
+      <div class="mg">
+        <div class="mc">Jan</div><div class="mc">Feb</div><div class="mc">Mar</div>
+        <div class="mc">Apr</div><div class="mc has">May</div><div class="mc">Jun</div>
+        <div class="mc">Jul</div><div class="mc sch">Aug</div><div class="mc">Sep</div>
+        <div class="mc">Oct</div><div class="mc">Nov</div><div class="mc">Dec</div>
+      </div>
+    </div>
+  </div><!-- end lp -->
+
+  <div id="content">
+    <div id="thead">
+      <div class="grow thr">
+        <div class="thc ns"></div>
+        <div class="thc" id="th-name" onclick="setS('name')">Destination</div>
+        <div class="thc" id="th-priority" onclick="setS('priority')">Priority</div>
+        <div class="thc" id="th-season" onclick="setS('season')">Season</div>
+        <div class="thc" id="th-scheduled" onclick="setS('scheduled')">Scheduled</div>
+        <div class="thc" id="th-activities" onclick="setS('activities')">Activities</div>
+        <div class="thc" id="th-triptype" onclick="setS('triptype')">Trip Type</div>
+        <div class="thc" id="th-budget" onclick="setS('budget')">Budget</div>
+        <div class="thc ns">Notes</div>
+        <div class="thc ns"></div>
+      </div>
+    </div>
+    <div id="tbody"></div>
+  </div>
+</div><!-- end main -->
+
+<!-- ITINERARY OVERLAY -->
+
+
+<!-- DESTINATION POPUP -->
+<div id="dpop" onclick="if(event.target===this)closeP()">
+  <div class="pcard">
+    <div class="pcl" onclick="closeP()">&#10005;</div>
+    <div class="pn" id="pn">Kyoto</div>
+    <div class="pc" id="pc">Japan &#183; Asia</div>
+    <div class="pst" id="pst"></div>
+    <div class="pa" id="pa"></div>
+    <div class="pnl">My Notes</div>
+    <div class="pnb" id="pnb"></div>
+    <div class="pac" id="pac"></div>
+  </div>
+</div>
+
+<!-- ADD COLUMN MODAL -->
+<div id="acm" onclick="if(event.target===this)closeAC()">
+  <div class="mcd">
+    <div class="mt">Add Custom Column</div>
+    <div class="ms">Track any characteristic that matters to your planning</div>
+    <div class="mf"><div class="ml">Column Name</div>
+      <input class="mi" type="text" id="cni" placeholder="e.g. Trip Length, Companion…"/>
+    </div>
+    <div class="mf">
+      <div class="ml">Column Type</div>
+      <div class="mcs" id="ct">
+        <div class="mc2 on" onclick="selC(this)">Tags / Multi-select</div>
+        <div class="mc2" onclick="selC(this)">Single Select</div>
+        <div class="mc2" onclick="selC(this)">Text Note</div>
+        <div class="mc2" onclick="selC(this)">Number</div>
+        <div class="mc2" onclick="selC(this)">Date</div>
+      </div>
+    </div>
+    <div class="mf">
+      <div class="ml">Suggested Presets</div>
+      <div class="mcs">
+        <div class="mc2" onclick="useP('Solo / Friends / Family')">Solo / Friends / Family</div>
+        <div class="mc2" onclick="useP('Short / Long Trip')">Short / Long Trip</div>
+        <div class="mc2" onclick="useP('Budget Tier')">Budget Tier</div>
+        <div class="mc2" onclick="useP('Visa Status')">Visa Status</div>
+        <div class="mc2" onclick="useP('Must Do Activities')">Must Do Activities</div>
+        <div class="mc2" onclick="useP('Booking Status')">Booking Status</div>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeAC()">Cancel</button>
+      <button class="btn s" onclick="doAC()">Add Column</button>
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+
+<script>
+// ── SHARED BUCKET LIST (localStorage) ─────────────────────────────────────────
+function loadBL() {
+  try { return JSON.parse(localStorage.getItem('travelite_bl') || '[]'); } catch(e) { return []; }
+}
+function saveBL(arr) {
+  localStorage.setItem('travelite_bl', JSON.stringify(arr));
+}
+let blData = loadBL();
+
+/* ════ BUCKET LIST JS ═════════════════════════════════════════════════════════ */
+
+const D_BL=[
+  {id:'kyoto',     name:'Kyoto',              country:'Japan',          cont:'Asia',       flag:'\u{1F1EF}\u{1F1F5}',priority:'top10', rank:1, season:['spring'],         sched:'2026-05',yr:'2026',       type:'couple', budget:'premium', bl:'$$$ Premium',acts:['history','food'],      note:'Sakura season \u2014 book ryokan early',score:91},
+  {id:'amalfi',    name:'Amalfi Coast',        country:'Italy',          cont:'Europe',     flag:'\u{1F1EE}\u{1F1F9}',priority:'top20', rank:7, season:['summer'],         sched:'2026-08',yr:'2026',       type:'friends',budget:'premium', bl:'$$$ Premium',acts:['beaches','food'],     note:'Rent a villa \u2014 5 nights minimum', score:88},
+  {id:'patagonia', name:'Patagonia',           country:'Argentina/Chile',cont:'S. America', flag:'\u{1F1E6}\u{1F1F7}',priority:'top10', rank:2, season:['summer','autumn'],sched:null,     yr:'unscheduled',type:'solo',   budget:'moderate',bl:'$$ Moderate', acts:['adventure','mountains'],note:'',                                          score:87},
+  {id:'bhutan',    name:'Bhutan',              country:'Bhutan',         cont:'Asia',       flag:'\u{1F1E7}\u{1F1F9}',priority:'top10', rank:3, season:['spring','autumn'],sched:null,     yr:'unscheduled',type:'couple', budget:'premium', bl:'$$$ Premium',acts:['mountains','history'],  note:"Must do Tiger's Nest hike",             score:85},
+  {id:'iceland',   name:'Iceland',             country:'Iceland',        cont:'Europe',     flag:'\u{1F1EE}\u{1F1F8}',priority:'top10', rank:4, season:['winter'],         sched:null,     yr:'unscheduled',type:'friends',budget:'premium', bl:'$$$ Premium',acts:['adventure','wildlife'],  note:'',                                          score:84},
+  {id:'marrakech', name:'Marrakech',           country:'Morocco',        cont:'Africa',     flag:'\u{1F1F2}\u{1F1E6}',priority:'top20', rank:8, season:['spring'],         sched:null,     yr:'unscheduled',type:'family', budget:'budget',  bl:'$ Budget',   acts:['city','food'],          note:'3-4 days, book riad in medina',         score:82},
+  {id:'maldives',  name:'Maldives',            country:'Maldives',       cont:'Asia',       flag:'\u{1F1F2}\u{1F1FB}',priority:'top20', rank:12,season:['winter'],         sched:null,     yr:'unscheduled',type:'couple', budget:'luxury',  bl:'$$$$ Luxury',acts:['beaches','diving'],      note:'',                                          score:80},
+  {id:'peru',      name:'Machu Picchu / Cusco',country:'Peru',           cont:'S. America', flag:'\u{1F1F5}\u{1F1EA}',priority:'top50', rank:22,season:['summer'],         sched:null,     yr:'unscheduled',type:'solo',   budget:'moderate',bl:'$$ Moderate', acts:['history','adventure'],  note:'Inca Trail permit \u2014 6 months ahead',score:79},
+  {id:'tanzania',  name:'Serengeti / Zanzibar',country:'Tanzania',       cont:'Africa',     flag:'\u{1F1F9}\u{1F1FF}',priority:'top50', rank:31,season:['summer'],         sched:null,     yr:'unscheduled',type:'friends',budget:'luxury',  bl:'$$$$ Luxury',acts:['wildlife','beaches'],     note:'',                                          score:78},
+  {id:'nz',        name:'South Island',        country:'New Zealand',    cont:'Oceania',    flag:'\u{1F1F3}\u{1F1FF}',priority:'someday',rank:99,season:['summer'],        sched:null,     yr:'unscheduled',type:'family', budget:'premium', bl:'$$$ Premium',acts:['mountains','adventure'],note:'',                                          score:76},
+  {id:'jpalps',    name:'Japanese Alps',       country:'Japan',          cont:'Asia',       flag:'\u{1F1EF}\u{1F1F5}',priority:'top50', rank:18,season:['winter'],         sched:'2025-02',yr:'2025',       type:'couple', budget:'moderate',bl:'$$ Moderate', acts:['skiing','mountains'],    note:'Hakuba Valley for powder',              score:83},
+  {id:'bagan',     name:'Bagan',               country:'Myanmar',        cont:'Asia',       flag:'\u{1F1F2}\u{1F1F2}',priority:'someday',rank:99,season:['autumn'],        sched:null,     yr:'unscheduled',type:'solo',   budget:'budget',  bl:'$ Budget',   acts:['history','adventure'],  note:'Hot air balloon at sunrise',            score:74}
+];
+
+const S={yr:'all',f:{priority:'all',triptype:'all',season:'all',budget:'all'},col:'priority',asc:false};
+const PO={top10:1,top20:2,top50:3,top100:4,someday:5};
+const BO={budget:1,moderate:2,premium:3,luxury:4};
+const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function fmt(s){if(!s)return'';const[y,m]=s.split('-');return MO[+m-1]+' '+y;}
+
+function vis(){
+  return D_BL.filter(d=>{
+    if(S.yr!=='all'&&d.yr!==S.yr)return false;
+    if(S.f.priority!=='all'&&d.priority!==S.f.priority)return false;
+    if(S.f.triptype!=='all'&&d.type!==S.f.triptype)return false;
+    if(S.f.season!=='all'&&!d.season.includes(S.f.season))return false;
+    if(S.f.budget!=='all'&&d.budget!==S.f.budget)return false;
+    return true;
+  });
+}
+
+function srt(list){
+  const c=S.col,a=S.asc?1:-1;
+  return[...list].sort((x,y)=>{
+    if(c==='priority'){const d=PO[x.priority]-PO[y.priority];return d?a*d:a*(x.rank-y.rank);}
+    if(c==='budget')  return a*(BO[x.budget]-BO[y.budget]);
+    if(c==='name')    return a*x.name.localeCompare(y.name);
+    if(c==='country') return a*x.country.localeCompare(y.country);
+    if(c==='triptype')return a*x.type.localeCompare(y.type);
+    if(c==='season')  return a*x.season[0].localeCompare(y.season[0]);
+    if(c==='activities')return a*x.acts[0].localeCompare(y.acts[0]);
+    if(c==='scheduled'){const va=x.sched||'9999',vb=y.sched||'9999';return a*va.localeCompare(vb);}
+    return 0;
+  });
+}
+
+function rk(p){return{top10:'rt10',top20:'rt20',top50:'rt50',someday:'rsd'}[p]||'rsd';}
+function blPc(p){return{top10:'pt10',top20:'pt20',top50:'pt50',someday:'psd'}[p]||'psd';}
+function pl(p){return{top10:'Top 10',top20:'Top 20',top50:'Top 50',top100:'Top 100',someday:'Someday'}[p]||p;}
+function bc(b){return{budget:'b1',moderate:'b2',premium:'b3',luxury:'b4'}[b]||'';}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function ci(){return'<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h10M4 1v2M8 1v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';}
+
+function seMap(s){return{spring:'spr',summer:'sum',autumn:'aut',winter:'win'}[s]||'';}
+
+function row(d){
+  const isc=!!d.sched;
+  const rn=d.rank<99?d.rank:'&#8212;';
+  const seasons=d.season.map(s=>`<span class="stag ${seMap(s)}">${cap(s)}</span>`).join('');
+  const aa=d.acts.map(a=>`<span class="at">${a}</span>`).join('');
+  const sc=isc
+    ?`<div class="csc set">${ci()} ${fmt(d.sched)}</div>`
+    :`<div class="csc">${ci()} Set a date</div>`;
+  const rc=['dr grow',isc?'schr':'',d.priority==='top10'?'t10r':''].filter(Boolean).join(' ');
+  const sn=(d.note||'').replace(/"/g,'&quot;');
+  return `<div class="${rc}" onclick="openP('${d.id}')">
+<div class="crank"><div class="rb ${rk(d.priority)}">${rn}</div></div>
+<div class="cname"><div class="fl">${d.flag}</div>
+  <div><div class="dn">${d.name}</div><div class="dc">${d.country}</div></div></div>
+<div class="cell"><span class="pb ${blPc(d.priority)}">${pl(d.priority)}</span></div>
+<div class="cellf">${seasons}</div>
+${sc}
+<div class="cellf">${aa}</div>
+<div class="cellf"><span class="tt">${cap(d.type)}</span></div>
+<div class="cell"><span class="btag ${bc(d.budget)}">${d.bl}</span></div>
+<div class="cell"><input class="inn" value="${sn}" placeholder="Add a note\u2026" onclick="event.stopPropagation()"/></div>
+<div class="cact">
+  <div class="ab pl" title="Plan Itinerary" onclick="event.stopPropagation();openI('${d.id}')">&#128506;</div>
+  <div class="ab" title="Edit" onclick="event.stopPropagation()">&#9998;</div>
+</div></div>`;
+}
+
+function render(){
+  const v=vis(), sv=srt(v);
+  const sc=sv.filter(d=>d.sched), un=sv.filter(d=>!d.sched);
+  let h='';
+  if(sc.length){
+    h+=`<div class="sdiv"><div class="sdl sage">&#128197; Scheduled Trips</div><div class="sdln sage"></div><div class="sdc sage">${sc.length}</div></div>`;
+    sc.forEach(d=>{h+=row(d);});
+  }
+  if(un.length){
+    h+=`<div class="sdiv" style="margin-top:10px"><div class="sdl">Bucket List</div><div class="sdln"></div><div class="sdc">${un.length}</div></div>`;
+    un.forEach(d=>{h+=row(d);});
+  }
+  if(!v.length){
+    h=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:10px;opacity:.4">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:rgba(245,239,230,.28)">No destinations match</div>
+      <div style="font-size:11px;color:rgba(245,239,230,.2);letter-spacing:.04em">Try adjusting your filters</div>
+    </div>`;
+  }
+  document.getElementById('tbody').innerHTML=h;
+  document.getElementById('pcnt').textContent=v.length+' destination'+(v.length===1?'':'s');
+  updTH();
+}
+
+const THL={name:'Destination',priority:'Priority',season:'Season',scheduled:'Scheduled',
+  activities:'Activities',triptype:'Trip Type',budget:'Budget'};
+function updTH(){
+  Object.keys(THL).forEach(c=>{
+    const el=document.getElementById('th-'+c);if(!el)return;
+    const on=S.col===c;
+    el.classList.toggle('on',on);
+    el.innerHTML=THL[c]+(on?` <span style="font-size:9px;opacity:.7">${S.asc?'\u2191':'\u2193'}</span>`:'');
+  });
+}
+
+function setF(g,el){
+  S.f[g]=el.dataset.v;
+  el.closest('.pills').querySelectorAll('.fp').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+function setTL(el){
+  S.yr=el.dataset.yr;
+  document.querySelectorAll('.tli').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+function setS(c){
+  if(S.col===c){S.asc=!S.asc;}else{S.col=c;S.asc=true;}
+  document.getElementById('ssel').value=c;
+  document.getElementById('sdir').innerHTML=S.asc?'\u2191':'\u2193';
+  render();
+}
+function onSC(){S.col=document.getElementById('ssel').value;render();}
+function toggleDir(){S.asc=!S.asc;document.getElementById('sdir').innerHTML=S.asc?'\u2191':'\u2193';render();}
+
+const BS={budget:'$',moderate:'$$',premium:'$$$',luxury:'$$$$'};
+function openP(id){
+  const d=D_BL.find(x=>x.id===id);if(!d)return;
+  document.getElementById('pn').textContent=d.name;
+  document.getElementById('pc').textContent=d.country+' \u00b7 '+d.cont;
+  document.getElementById('pst').innerHTML=
+    `<div class="ps"><div class="psn">${d.score}</div><div class="psl">Score</div></div>`+
+    `<div class="ps"><div class="psn">${BS[d.budget]||'?'}</div><div class="psl">Budget</div></div>`+
+    `<div class="ps"><div class="psn">${d.season.map(cap).join(' / ')}</div><div class="psl">Best Season</div></div>`+
+    `<div class="ps"><div class="psn">${d.sched?fmt(d.sched):'&#8212;'}</div><div class="psl">Scheduled</div></div>`;
+  document.getElementById('pa').innerHTML=
+    d.acts.map(a=>`<span class="ata">${cap(a)}</span>`).join('')+
+    `<span class="ata" style="background:rgba(201,169,110,.09);border-color:rgba(201,169,110,.2);color:var(--gold)">${cap(d.type)} trip</span>`;
+  document.getElementById('pnb').textContent=d.note||'No notes yet. Click to add\u2026';
+  document.getElementById('pac').innerHTML=
+    `<button class="btn g" onclick="openI('${d.id}');closeP()">&#128506; Plan Itinerary</button>`+
+    `<button class="btn">Change Priority</button>`+
+    `<button class="btn">Edit Season</button>`+
+    `<button class="btn" style="margin-left:auto;color:rgba(196,106,106,.6);border-color:rgba(196,106,106,.2)">Remove</button>`;
+  document.getElementById('dpop').classList.add('open');
+}
+function closeP(){document.getElementById('dpop').classList.remove('open');}
+
+function openI(id){
+  const d=D_BL.find(x=>x.id===id)||{name:'Destination',country:'',sched:null};
+  document.getElementById('idn').textContent=d.name;
+  document.getElementById('ids').textContent=d.country+(d.sched?' \u00b7 '+fmt(d.sched):'')+' \u00b7 Draft Itinerary';
+  document.getElementById('ito').classList.add('open');
+}
+function closeI(){document.getElementById('ito').classList.remove('open');}
+function blSelDay(el){document.querySelectorAll('.idi').forEach(i=>i.classList.remove('active'));el.classList.add('active');}
+
+function openAC(){document.getElementById('acm').classList.add('open');}
+function closeAC(){document.getElementById('acm').classList.remove('open');}
+function selC(el){el.closest('.mcs').querySelectorAll('.mc2').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function useP(n){document.getElementById('cni').value=n;}
+function doAC(){
+  const n=document.getElementById('cni').value.trim();if(!n)return;
+  const div=document.createElement('div');div.className='ccli';
+  div.innerHTML=`<span style="color:rgba(201,169,110,.6);font-size:9px">&#9679;</span> ${n} <span style="margin-left:auto;font-size:9px;color:rgba(245,239,230,.2);cursor:pointer" onclick="this.parentElement.remove()">&#10005;</span>`;
+  document.getElementById('ccl').appendChild(div);
+  document.getElementById('cni').value='';
+  closeAC();
+}
+
+
+
+// Update count in topbar
+function updateBLCount() {
+  const el = document.getElementById('g-bl-count');
+  if (el) el.textContent = blData.length + ' destination' + (blData.length !== 1 ? 's' : '');
+}
+
+// Init
+if (typeof render === 'function') render();
+updateBLCount();
+</script>
+</body>
+</html>
